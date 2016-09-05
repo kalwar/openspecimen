@@ -1,7 +1,9 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,6 +14,7 @@ import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenUnitService;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.PvAttributes;
+import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 
 public class SpecimenUnitServiceImpl implements SpecimenUnitService {
@@ -37,6 +40,22 @@ public class SpecimenUnitServiceImpl implements SpecimenUnitService {
 			}
 
 			return ResponseEvent.response(units);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+	
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Map<String, String>> getSpecimenIcon(RequestEvent<String> value) {
+		try {
+			PermissibleValue pv = daoFactory.getPermissibleValueDao().getByValue(PvAttributes.SPECIMEN_CLASS, 
+				value.getPayload());
+			
+			Map<String, String> icon = new HashMap<String, String>();
+			icon.put("icon", getProperty(pv, "icon"));
+			
+			return ResponseEvent.response(icon);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
