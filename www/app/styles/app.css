@@ -1139,8 +1139,8 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   padding-top: 7px;
 }
 
-.os-icon {
-   background-color: rgb(66, 139, 202);
+.os-specimen-icon {
+   background-color: #428bca;
    color: white;
    padding: 3px;
    border-radius: 20%;

@@ -40,6 +40,7 @@ public class SpecimenUnitsController {
 	public Map<String, String> getSpecimenIcon(
 			@RequestParam(value = "value", required = true) 
 			String value) {
+		
 		ResponseEvent<Map<String, String>> resp = specUnitsSvc.getSpecimenIcon(new RequestEvent<>(value));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();

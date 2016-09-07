@@ -1,19 +1,21 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
+import com.krishagni.catissueplus.core.administrative.domain.factory.PvErrorCode;
 import com.krishagni.catissueplus.core.administrative.events.ListPvCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenUnitDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenUnitService;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.PvAttributes;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 
@@ -49,21 +51,22 @@ public class SpecimenUnitServiceImpl implements SpecimenUnitService {
 	@PlusTransactional
 	public ResponseEvent<Map<String, String>> getSpecimenIcon(RequestEvent<String> value) {
 		try {
-			PermissibleValue pv = daoFactory.getPermissibleValueDao().getByValue(PvAttributes.SPECIMEN_CLASS, 
-				value.getPayload());
 			
-			String propValue = null;
-			Map<String, String> icon = new HashMap<String, String>();
+			PermissibleValue pv = daoFactory.getPermissibleValueDao().getByValue(
+				PvAttributes.SPECIMEN_CLASS, value.getPayload());
 			
-			propValue = getProperty(pv, "icon");
-			if (StringUtils.isBlank(propValue)) {
-				propValue = getProperty(pv, "abbreviation");
-				icon.put("abbreviation", propValue);
-			} else {
-				icon.put("icon", propValue);
+			if (pv == null) {
+				throw OpenSpecimenException.userError(PvErrorCode.NOT_FOUND, value.getPayload());
 			}
 			
-			return ResponseEvent.response(icon);
+			String propValue = getProperty(pv, "icon");
+			if (StringUtils.isBlank(propValue)) {
+				return ResponseEvent.response(Collections.singletonMap("abbreviation", getProperty(pv, "abbreviation")));
+			} else {
+				return ResponseEvent.response(Collections.singletonMap("icon", getProperty(pv, "icon")));
+			}
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}

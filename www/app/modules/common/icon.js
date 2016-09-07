@@ -1,25 +1,17 @@
 
 angular.module('openspecimen')
-  .directive('osIcon', function($http, ApiUrls) {
+  .directive('osSpecimenIcon', function($http, ApiUrls) {
     function linker(scope, element, attrs) {
       scope.prop = {};
 
       if (scope.value) {
-        getIcon(scope);
+        var url = ApiUrls.getBaseUrl() + '/specimen-units/icon?value=' + scope.value;
+        $http.get(url).then(
+          function(prop) {
+            scope.prop = prop.data;
+          }
+        );
       }
-    }
-
-    function initCall(value) {
-      var prop = $http.get(ApiUrls.getBaseUrl() + '/specimen-units/icon?value=' + value);
-      return prop;
-    }
-
-    function getIcon(scope) {
-      initCall(scope.value).then(
-        function(prop) {
-          scope.prop = prop.data;
-        }
-      );
     }
 
     return {
@@ -30,9 +22,8 @@ angular.module('openspecimen')
         value: '='
       },
       template: '<span ng-switch on="!!prop.abbreviation">' +
-                '  <span ng-switch-when="true" class="os-icon">{{prop.abbreviation | limitTo : 2}}</span>' +
+                '  <span ng-switch-when="true" class="os-specimen-icon">{{prop.abbreviation | limitTo : 2}}</span>' +
                 '  <span ng-switch-default class="{{prop.icon}}"></span>' +
                 '</span>'
-                
     };
   });
