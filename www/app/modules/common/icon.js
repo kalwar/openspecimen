@@ -2,7 +2,7 @@
 angular.module('openspecimen')
   .directive('osIcon', function($http, ApiUrls) {
     function linker(scope, element, attrs) {
-      scope.icon = '';
+      scope.prop = {};
 
       if (scope.value) {
         getIcon(scope);
@@ -17,7 +17,7 @@ angular.module('openspecimen')
     function getIcon(scope) {
       initCall(scope.value).then(
         function(prop) {
-          scope.icon = prop.data.icon;
+          scope.prop = prop.data;
         }
       );
     }
@@ -29,6 +29,10 @@ angular.module('openspecimen')
       scope:{
         value: '='
       },
-      template: '<span>{{icon | limitTo : 2}}</span>'
+      template: '<span ng-switch on="!!prop.abbreviation">' +
+                '  <span ng-switch-when="true" class="os-icon">{{prop.abbreviation | limitTo : 2}}</span>' +
+                '  <span ng-switch-default class="{{prop.icon}}"></span>' +
+                '</span>'
+                
     };
   });

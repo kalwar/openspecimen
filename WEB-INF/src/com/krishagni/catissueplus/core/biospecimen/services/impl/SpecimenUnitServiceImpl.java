@@ -52,8 +52,16 @@ public class SpecimenUnitServiceImpl implements SpecimenUnitService {
 			PermissibleValue pv = daoFactory.getPermissibleValueDao().getByValue(PvAttributes.SPECIMEN_CLASS, 
 				value.getPayload());
 			
+			String propValue = null;
 			Map<String, String> icon = new HashMap<String, String>();
-			icon.put("icon", getProperty(pv, "icon"));
+			
+			propValue = getProperty(pv, "icon");
+			if (StringUtils.isBlank(propValue)) {
+				propValue = getProperty(pv, "abbreviation");
+				icon.put("abbreviation", propValue);
+			} else {
+				icon.put("icon", propValue);
+			}
 			
 			return ResponseEvent.response(icon);
 		} catch (Exception e) {
