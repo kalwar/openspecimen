@@ -1,6 +1,8 @@
 package com.krishagni.catissueplus.core.administrative.events;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
@@ -84,5 +86,9 @@ public class StorageLocationSummary implements Serializable {
 		storageLocation.setPositionY(position.getPosTwo());
 		storageLocation.setPosition(position.getPosition());
 		return storageLocation;
+	}
+
+	public static List<StorageLocationSummary> from(List<StorageContainerPosition> positions) {
+		return positions.stream().map(StorageLocationSummary::from).collect(Collectors.toList());
 	}
 }

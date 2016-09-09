@@ -41,4 +41,11 @@
         p.occupying_specimen_id is not null
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Request ID and time when the position was reserved">
+    <addColumn tableName="OS_CONTAINER_POSITIONS">
+      <column name="RESERVATION_ID" type="${text.type}(40)"/>
+      <column name="RESERVATION_TIME" type="${nullable.ts.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

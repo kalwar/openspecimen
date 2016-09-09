@@ -25,7 +25,8 @@ import com.krishagni.catissueplus.core.administrative.events.AssignPositionsOp;
 import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
-import com.krishagni.catissueplus.core.administrative.events.PositionTenantDetail;
+import com.krishagni.catissueplus.core.administrative.events.ReservePositionsOp;
+import com.krishagni.catissueplus.core.administrative.events.TenantDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerPositionDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerSummary;
@@ -206,13 +207,13 @@ public class StorageContainersController {
 			@RequestParam(value = "specimenClass", required = true)
 			String specimenClass) {
 		
-		PositionTenantDetail detail = new PositionTenantDetail();
+		TenantDetail detail = new TenantDetail();
 		detail.setContainerId(containerId);
 		detail.setCpId(cpId);
 		detail.setSpecimenClass(specimenClass);
 		detail.setSpecimenType(specimenType);
 		
-		RequestEvent<PositionTenantDetail> req = new RequestEvent<PositionTenantDetail>(detail);
+		RequestEvent<TenantDetail> req = new RequestEvent<TenantDetail>(detail);
 		ResponseEvent<Boolean> resp = storageContainerSvc.isAllowed(req);
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
@@ -389,6 +390,19 @@ public class StorageContainersController {
 	public List<StorageContainerSummary> createMultipleContainers(@RequestBody List<StorageContainerDetail> containers) {
 		RequestEvent<List<StorageContainerDetail>> req = new RequestEvent<>(containers);
 		ResponseEvent<List<StorageContainerSummary>> resp = storageContainerSvc.createMultipleContainers(req);
+		resp.throwErrorIfUnsuccessful();
+		return resp.getPayload();
+	}
+
+	//
+	// Reserve slots in container
+	//
+	@RequestMapping(method = RequestMethod.POST, value = "/reserve-positions")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<StorageLocationSummary> reservePositions(@RequestBody ReservePositionsOp op) {
+		RequestEvent<ReservePositionsOp> req = new RequestEvent<>(op);
+		ResponseEvent<List<StorageLocationSummary>> resp = storageContainerSvc.reservePositions(req);
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}

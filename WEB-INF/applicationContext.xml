@@ -441,12 +441,21 @@
     <property name="messageSource" ref="messageSource"/>
   </bean>
 
+  <bean id="containerSelectionStrategyFactory" class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerSelectionStrategyFactoryImpl">
+   <property name="strategyClasses">
+     <map>
+       <entry key="least-empty" value="com.krishagni.catissueplus.core.administrative.services.impl.LeastEmptyContainerSelectionStrategy"/>
+     </map>
+   </property>
+  </bean>
+
   <bean id="storageContainerSvc" class="com.krishagni.catissueplus.core.administrative.services.impl.StorageContainerServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="containerFactory" ref="storageContainerFactory"/>
     <property name="mapExporter" ref="containerMapExporter"/>
     <property name="nameGenerator" ref="containerNameGenerator"/>
     <property name="specimenResolver" ref="specimenResolver"/>
+    <property name="selectionStrategyFactory" ref="containerSelectionStrategyFactory"/>
   </bean>
 
   <bean id="containerTypeFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ContainerTypeFactoryImpl">

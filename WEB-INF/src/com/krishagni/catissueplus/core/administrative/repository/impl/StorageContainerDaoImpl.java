@@ -6,6 +6,7 @@ import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
+import com.krishagni.catissueplus.core.administrative.events.ContainerSelectorCriteria;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerSummary;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerRestrictionsCriteria;
@@ -227,6 +229,21 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 
 		return rows.stream().map(row -> createContainer(row, noOfColumns))
 			.sorted(this::comparePositions).collect(Collectors.toList());
+	}
+
+	@Override
+	@SuppressWarnings(value = "unchecked")
+	public Long getLeastEmptyContainerId(ContainerSelectorCriteria crit) {
+		List<Long> rows = getCurrentSession().getNamedQuery(GET_LEAST_EMPTY_CONTAINER_ID)
+			.setLong("cpId", crit.cpId())
+			.setString("specimenClass", crit.specimenClass())
+			.setString("specimenType", crit.type())
+			.setInteger("minFreeLocs", crit.minFreePositions())
+			.setDate("reservedLaterThan", crit.reservedLaterThan())
+			.setMaxResults(1)
+			.list();
+
+		return rows.isEmpty() ? null : rows.get(0);
 	}
 
 	private StorageContainerSummary createContainer(Object[] row, int noOfColumns) {
@@ -511,5 +528,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 	private static final String GET_ROOT_AND_CHILD_CONTAINERS = FQN + ".getRootAndChildContainers";
 
 	private static final String GET_CHILD_CONTAINERS = FQN + ".getChildContainers";
+
+	private static final String GET_LEAST_EMPTY_CONTAINER_ID = FQN + ".getLeastEmptyContainerId";
 
 }

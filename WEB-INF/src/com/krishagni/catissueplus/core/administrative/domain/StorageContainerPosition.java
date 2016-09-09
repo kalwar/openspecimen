@@ -1,5 +1,7 @@
 package com.krishagni.catissueplus.core.administrative.domain;
 
+import java.util.Date;
+
 import org.hibernate.envers.Audited;
 import org.springframework.beans.BeanUtils;
 
@@ -22,6 +24,10 @@ public class StorageContainerPosition implements Comparable<StorageContainerPosi
 	private Specimen occupyingSpecimen;
 	
 	private StorageContainer occupyingContainer;
+
+	private String reservationId;
+
+	private Date reservationTime;
 
 	public Long getId() {
 		return id;
@@ -90,7 +96,23 @@ public class StorageContainerPosition implements Comparable<StorageContainerPosi
 	public void setContainer(StorageContainer container) {
 		this.container = container;
 	}
-	
+
+	public String getReservationId() {
+		return reservationId;
+	}
+
+	public void setReservationId(String reservationId) {
+		this.reservationId = reservationId;
+	}
+
+	public Date getReservationTime() {
+		return reservationTime;
+	}
+
+	public void setReservationTime(Date reservationTime) {
+		this.reservationTime = reservationTime;
+	}
+
 	public void update(StorageContainerPosition other) {
 		//
 		// Ideally when container changes, we should first remove it from old container

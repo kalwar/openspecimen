@@ -114,9 +114,10 @@
       name="position"
       class="com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition"
       property-ref="occupyingContainer"
-      cascade="save-update"/>
+      cascade="save-update"
+      fetch="join"/>
 
-    <set name="occupiedPositions" table="OS_CONTAINER_POSITIONS" cascade="all-delete-orphan" batch-size="100" inverse="true">
+    <set name="occupiedPositions" table="OS_CONTAINER_POSITIONS" cascade="all-delete-orphan" inverse="true">
       <key column="STORAGE_CONTAINER_ID" not-null="true"/>
       <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition"/>
     </set>
@@ -204,5 +205,43 @@
       where
         s.parent_container_id = :parentId and s.activity_status != 'Disabled'
     </sql-query>
+
+    <sql-query name="getLeastEmptyContainerId">
+      <return-scalar column="containerId" type="long"/>
+
+      select
+        distinct s.identifier as containerId, (s.no_of_cols * s.no_of_rows - o.occupied_pos) as freePos
+      from
+        os_storage_containers s
+        left join catissue_site_cp cp_sites
+          on cp_sites.site_id = s.site_id
+        left join os_stor_container_comp_cps allowed_cps
+          on allowed_cps.storage_container_id = s.identifier
+        left join os_stor_cont_comp_spec_classes allowed_classes
+          on allowed_classes.storage_container_id = s.identifier
+        left join os_stor_cont_comp_spec_types allowed_types
+          on allowed_types.storage_container_id = s.identifier
+        inner join (
+          select
+            ps.identifier, count(p.storage_container_id) as occupied_pos
+          from
+            os_storage_containers ps
+            left join os_container_positions p on p.storage_container_id = ps.identifier
+          where
+            p.reservation_id is null or p.reservation_time > :reservedLaterThan
+          group by
+            ps.identifier
+        ) o on o.identifier = s.identifier
+      where
+        s.store_specimens = 1 and
+        ((allowed_cps.cp_id is null and cp_sites.collection_protocol_id = :cpId) or allowed_cps.cp_id = :cpId) and
+        (allowed_classes.specimen_class is null or allowed_classes.specimen_class = :specimenClass) and
+        (allowed_types.specimen_type is null or allowed_types.specimen_type = :specimenType) and
+        s.activity_status = 'Active' and
+        (s.no_of_cols * s.no_of_rows - o.occupied_pos) > (:minFreeLocs - 1)
+      order by
+        (s.no_of_cols * s.no_of_rows - o.occupied_pos)
+    </sql-query>
+
   </class>
 </hibernate-mapping>

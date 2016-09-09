@@ -76,37 +76,37 @@ public class StorageContainer extends BaseEntity {
 	
 	private String comments;
 	
-	private Set<StorageContainer> childContainers = new LinkedHashSet<StorageContainer>();
+	private Set<StorageContainer> childContainers = new LinkedHashSet<>();
 	
-	private Set<StorageContainer> ancestorContainers = new HashSet<StorageContainer>();
+	private Set<StorageContainer> ancestorContainers = new HashSet<>();
 	
-	private Set<StorageContainer> descendentContainers = new HashSet<StorageContainer>();
+	private Set<StorageContainer> descendentContainers = new HashSet<>();
 	
 	//
 	// all types of these specimen classes are allowed
 	//
-	private Set<String> allowedSpecimenClasses = new HashSet<String>(); 
+	private Set<String> allowedSpecimenClasses = new HashSet<>();
 	
-	private Set<String> allowedSpecimenTypes = new HashSet<String>();
+	private Set<String> allowedSpecimenTypes = new HashSet<>();
 	
-	private Set<CollectionProtocol> allowedCps = new HashSet<CollectionProtocol>();
+	private Set<CollectionProtocol> allowedCps = new HashSet<>();
 	
 	private boolean storeSpecimenEnabled = false;
 			
 	private StorageContainerPosition position;
 	
-	private Set<StorageContainerPosition> occupiedPositions = new HashSet<StorageContainerPosition>();
-	
+	private Set<StorageContainerPosition> occupiedPositions = new HashSet<>();
+
 	//
 	// query capabilities
 	//
 	private StorageContainerStats stats;
 	
-	private Set<String> compAllowedSpecimenClasses = new HashSet<String>();
+	private Set<String> compAllowedSpecimenClasses = new HashSet<>();
 	
-	private Set<String> compAllowedSpecimenTypes = new HashSet<String>();
+	private Set<String> compAllowedSpecimenTypes = new HashSet<>();
 	
-	private Set<CollectionProtocol> compAllowedCps = new HashSet<CollectionProtocol>();
+	private Set<CollectionProtocol> compAllowedCps = new HashSet<>();
 
 	private transient StorageContainerPosition lastAssignedPos;
 
@@ -345,7 +345,7 @@ public class StorageContainer extends BaseEntity {
 	public void setOccupiedPositions(Set<StorageContainerPosition> occupiedPositions) {
 		this.occupiedPositions = occupiedPositions;
 	}
-	
+
 	@NotAudited
 	public StorageContainerStats getStats() {
 		return stats;
@@ -409,6 +409,10 @@ public class StorageContainer extends BaseEntity {
 	
 	public int freePositionsCount() {
 		return noOfColumns * noOfRows - occupiedPositions.size();
+	}
+
+	public boolean hasFreePositionsForReservation() {
+		return (getNoOfColumns() * getNoOfRows() - getOccupiedPositions().size()) > 0;
 	}
 	
 	public Set<Integer> occupiedPositionsOrdinals() {
