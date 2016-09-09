@@ -2,6 +2,7 @@
 package com.krishagni.catissueplus.core.administrative.domain;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -600,6 +601,24 @@ public class StorageContainer extends BaseEntity {
 		} else {
 			return cp.getRepositories().contains(getSite());
 		}
+	}
+
+	public StorageContainerPosition getReservedPosition(String row, String column, String reservationId) {
+		StorageContainerPosition reservedPos = getOccupiedPositions().stream()
+			.filter(pos -> pos.equals(row, column, reservationId))
+			.findFirst().orElse(null);
+		if (reservedPos == null) {
+			return null;
+		}
+
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MINUTE, -5);
+		if (reservedPos.getReservationTime().before(cal.getTime())) {
+			getOccupiedPositions().remove(reservedPos);
+			return null;
+		}
+
+		return reservedPos;
 	}
 
 	public static boolean isValidScheme(String scheme) {

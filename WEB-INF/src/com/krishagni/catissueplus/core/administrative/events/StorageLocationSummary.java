@@ -25,6 +25,8 @@ public class StorageLocationSummary implements Serializable {
 
 	private int position;
 
+	private String reservationId;
+
 	public Long getId() {
 		return id;
 	}
@@ -73,6 +75,14 @@ public class StorageLocationSummary implements Serializable {
 		this.position = position;
 	}
 
+	public String getReservationId() {
+		return reservationId;
+	}
+
+	public void setReservationId(String reservationId) {
+		this.reservationId = reservationId;
+	}
+
 	public static StorageLocationSummary from(StorageContainerPosition position) {
 		if (position == null) {
 			return null;
@@ -85,6 +95,7 @@ public class StorageLocationSummary implements Serializable {
 		storageLocation.setPositionX(position.getPosOne());
 		storageLocation.setPositionY(position.getPosTwo());
 		storageLocation.setPosition(position.getPosition());
+		storageLocation.setReservationId(position.getReservationId());
 		return storageLocation;
 	}
 

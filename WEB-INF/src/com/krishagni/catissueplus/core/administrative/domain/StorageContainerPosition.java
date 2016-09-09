@@ -138,6 +138,10 @@ public class StorageContainerPosition implements Comparable<StorageContainerPosi
 	public void vacate() {
 		container.removePosition(this);
 	}
+
+	public boolean equals(String row, String column, String reservationId) {
+		return row.equals(getPosTwo()) && column.equals(getPosOne()) && reservationId.equals(getReservationId());
+	}
 	
 	private static final String[] POS_UPDATE_IGN_PROPS = new String[] {
 		"id", 
