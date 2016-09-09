@@ -272,7 +272,11 @@ angular.module('os.biospecimen.participant.collect-specimens',
           function() {
             return specimen.storageLocation;
           },
-          function() {
+          function(newVal, oldVal) {
+            if (newVal == oldVal) {
+              return;
+            }
+
             if (specimen.expanded) {
               return;
             }

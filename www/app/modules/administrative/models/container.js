@@ -172,5 +172,13 @@ angular.module('os.administrative.models.container', ['os.common.models'])
       );
     };
 
+    Container.getReservedPositions = function(reserveOp) {
+      return $http.post(Container.url() + 'reserve-positions', reserveOp).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     return Container;
   });
