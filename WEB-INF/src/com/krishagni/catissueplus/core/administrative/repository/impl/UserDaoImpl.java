@@ -153,6 +153,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public List<User> getActiveUsers(Date startDate, Date endDate) {
 		return sessionFactory.getCurrentSession()
 			.getNamedQuery(GET_ACTIVE_USERS)
