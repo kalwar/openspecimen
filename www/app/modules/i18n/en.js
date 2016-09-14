@@ -527,6 +527,7 @@
     "cp": "Collection Protocol",
     "ppid": "PPID",
     "concentration_unit": "&#181;g/&#181;l",
+    "manual_selection": "Manual Selection",
     "copy_first_to_all": "Copy first to all",
     "row": "Row",
     "column": "Column",

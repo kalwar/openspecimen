@@ -39,7 +39,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
   })
   .controller('CollectSpecimensCtrl', 
     function(
-      $scope, $translate, $state, $document,
+      $scope, $translate, $state, $document, $q,
       cpr, visit, 
       Visit, Specimen, PvManager, 
       CollectSpecimensSvc, Container, Alerts, Util, SpecimenUtil) {
@@ -71,7 +71,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
         visit.cprId = cpr.id;
         delete visit.anticipatedVisitDate;
         $scope.visit = visit;
-        $scope.containerListCache = {};
+        $scope.autoPosAllocate = true;
         
         $scope.collDetail = {
           collector: undefined,
@@ -210,10 +210,11 @@ angular.module('os.biospecimen.participant.collect-specimens',
         for (var i = 0; i < $scope.specimens.length; ++i) {
           var loc = $scope.specimens[i].storageLocation;
           if (loc && loc.reservationId) {
-            Container.cancelReservation(loc.reservationId);
-            break;
+            return Container.cancelReservation(loc.reservationId);
           }
         }
+
+        return null;
       }
 
       function setShowInTree(aliquot, showInTree) {
@@ -324,6 +325,20 @@ angular.module('os.biospecimen.participant.collect-specimens',
           }
         }
       };
+
+      $scope.manuallySelectContainers = function() {
+        $q.when(vacateReservedPositions()).then(
+          function() {
+            angular.forEach($scope.specimens,
+              function(spmn) {
+                spmn.storageLocation = {};
+              }
+            );
+
+            $scope.autoPosAllocate = false;
+          }
+        );
+      }
 
       $scope.openSpecimenNode = function(specimen) {
         specimen.isOpened = true;
