@@ -13,6 +13,8 @@ public class ContainerSelectorCriteria {
 
 	private Date reservedLaterThan;
 
+	private int numContainers;
+
 	public ContainerSelectorCriteria() {
 
 	}
@@ -60,5 +62,14 @@ public class ContainerSelectorCriteria {
 
 	public Date reservedLaterThan() {
 		return reservedLaterThan;
+	}
+
+	public int numContainers() {
+		return numContainers <= 0 ? 1 : numContainers;
+	}
+
+	public ContainerSelectorCriteria numContainers(int numContainers) {
+		this.numContainers = numContainers;
+		return this;
 	}
 }

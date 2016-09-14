@@ -33,7 +33,7 @@ public interface StorageContainerDao extends Dao<StorageContainer> {
 
 	public List<StorageContainerSummary> getChildContainers(Long containerId, int noOfColumns);
 
-	public Long getLeastEmptyContainerId(ContainerSelectorCriteria crit);
+	public List<Long> getLeastEmptyContainerId(ContainerSelectorCriteria crit);
 
 	public int deleteReservedPositions(List<String> reservationIds);
 }

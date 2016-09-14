@@ -1,10 +1,13 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -17,6 +20,8 @@ import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 
 @Configurable
 public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionStrategy {
+	private List<Long> containerIds = new ArrayList<>();
+
 	private StorageContainer lastSelected;
 
 	private Map<String, StorageContainer> recentlySelectedContainers = new HashMap<>();
@@ -36,20 +41,27 @@ public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionS
 		}
 
 
-		long t1 = System.currentTimeMillis();
-		Long containerId = daoFactory.getStorageContainerDao().getLeastEmptyContainerId(
-			new ContainerSelectorCriteria()
-				.cpId(criteria.getCpId())
-				.specimenClass(criteria.getSpecimenClass())
-				.type(criteria.getSpecimenType())
-				.minFreePositions(1)
-				.reservedLaterThan(ignoreReservationsBeforeDate()));
-		if (containerId == null) {
-			return null;
-		}
-		System.err.println("**** SQL execution time: " + (System.currentTimeMillis() - t1) + " ms");
 
-		container = daoFactory.getStorageContainerDao().getById(containerId);
+		if (CollectionUtils.isEmpty(containerIds)) {
+			long t1 = System.currentTimeMillis();
+			containerIds = daoFactory.getStorageContainerDao().getLeastEmptyContainerId(
+				new ContainerSelectorCriteria()
+					.cpId(criteria.getCpId())
+					.specimenClass(criteria.getSpecimenClass())
+					.type(criteria.getSpecimenType())
+					.minFreePositions(1)
+					.reservedLaterThan(ignoreReservationsBeforeDate())
+					.numContainers(5));
+			if (CollectionUtils.isEmpty(containerIds)) {
+				return null;
+			}
+
+			System.err.println("**** SQL execution time: " + (System.currentTimeMillis() - t1) + " ms");
+		}
+
+
+
+		container = daoFactory.getStorageContainerDao().getById(containerIds.remove(0));
 		recentlySelectedContainers.put(key(criteria), container);
 		return (lastSelected = container);
 	}

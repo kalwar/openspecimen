@@ -232,17 +232,15 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 
 	@Override
 	@SuppressWarnings(value = "unchecked")
-	public Long getLeastEmptyContainerId(ContainerSelectorCriteria crit) {
-		List<Long> rows = getCurrentSession().getNamedQuery(GET_LEAST_EMPTY_CONTAINER_ID)
+	public List<Long> getLeastEmptyContainerId(ContainerSelectorCriteria crit) {
+		return getCurrentSession().getNamedQuery(GET_LEAST_EMPTY_CONTAINER_ID)
 			.setLong("cpId", crit.cpId())
 			.setString("specimenClass", crit.specimenClass())
 			.setString("specimenType", crit.type())
 			.setInteger("minFreeLocs", crit.minFreePositions())
 			.setDate("reservedLaterThan", crit.reservedLaterThan())
-			.setMaxResults(1)
+			.setMaxResults(crit.numContainers())
 			.list();
-
-		return rows.isEmpty() ? null : rows.get(0);
 	}
 
 	@Override
