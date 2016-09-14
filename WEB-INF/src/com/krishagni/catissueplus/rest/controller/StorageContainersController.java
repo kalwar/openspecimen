@@ -407,6 +407,15 @@ public class StorageContainersController {
 		return resp.getPayload();
 	}
 
+	@RequestMapping(method = RequestMethod.DELETE, value = "/reserve-positions")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Integer> vacatePositions(@RequestParam(value = "reservationId") String reservationId) {
+		ResponseEvent<Integer> resp = storageContainerSvc.cancelReservation(new RequestEvent<>(reservationId));
+		resp.throwErrorIfUnsuccessful();
+		return Collections.singletonMap("vacatedPositions", resp.getPayload());
+	}
+
 	//
 	// APIs created mostly for ease of implementing UI views
 	//

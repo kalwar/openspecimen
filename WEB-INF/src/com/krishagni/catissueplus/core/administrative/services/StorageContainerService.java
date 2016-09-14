@@ -55,6 +55,7 @@ public interface StorageContainerService {
 	//
 	public ResponseEvent<List<StorageLocationSummary>> reservePositions(RequestEvent<ReservePositionsOp> req);
 
+	public ResponseEvent<Integer> cancelReservation(RequestEvent<String> req);
 
 	//
 	// Mostly present to implement UI tree for faster access

@@ -142,6 +142,13 @@
         and pos.occupyingSpecimen is not null
     </query>
 
+    <query name="deletePositionsByReservationIds">
+      delete from
+        com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition p
+      where
+        p.reservationId in (:reservationIds)
+    </query>
+
     <sql-query name="getAncestors">
       <return-scalar column="ancestorId" type="long"/>
       <return-scalar column="parentId"   type="long"/>

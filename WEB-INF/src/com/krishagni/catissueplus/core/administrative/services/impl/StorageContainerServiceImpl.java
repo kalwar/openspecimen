@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.services.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -427,6 +428,20 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			return ResponseEvent.serverError(e);
 		} finally {
 			System.err.println("***** Call time: " + (System.currentTimeMillis() - t1) + " ms");
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Integer> cancelReservation(RequestEvent<String> req) {
+		try {
+			int vacatedPositions = daoFactory.getStorageContainerDao()
+				.deleteReservedPositions(Collections.singletonList(req.getPayload()));
+			return ResponseEvent.response(vacatedPositions);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
 		}
 	}
 
