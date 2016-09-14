@@ -180,5 +180,14 @@ angular.module('os.administrative.models.container', ['os.common.models'])
       );
     }
 
+    Container.cancelReservation = function(reservationId) {
+      var params = {reservationId: reservationId};
+      return $http.delete(Container.url() + 'reserve-positions', {params: params}).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     return Container;
   });

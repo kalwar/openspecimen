@@ -82,6 +82,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
 
         loadPvs();
         initAliquotGrps($scope.specimens);
+        $scope.$on('$destroy', vacateReservedPositions);
       };
 
       function initAliquotGrps(specimens) {
@@ -203,6 +204,16 @@ angular.module('os.biospecimen.participant.collect-specimens',
             return s.label;
           }
         ).join(",");
+      }
+
+      function vacateReservedPositions() {
+        for (var i = 0; i < $scope.specimens.length; ++i) {
+          var loc = $scope.specimens[i].storageLocation;
+          if (loc && loc.reservationId) {
+            Container.cancelReservation(loc.reservationId);
+            break;
+          }
+        }
       }
 
       function setShowInTree(aliquot, showInTree) {
@@ -433,6 +444,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
         if (!!$scope.visit.id && $scope.visit.status == 'Complete') {
           Specimen.save(specimensToSave).then(
             function() {
+              $scope.specimens.length = 0;
               CollectSpecimensSvc.clear();
               $scope.back();
             }
@@ -446,6 +458,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
             function(result) {
               var visitId = result.data.visit.id;
               var sd = CollectSpecimensSvc.getStateDetail();
+              $scope.specimens.length = 0;
               CollectSpecimensSvc.clear();
               $state.go(sd.state.name, angular.extend(sd.params, {visitId: visitId}));
             }
