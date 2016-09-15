@@ -42,6 +42,8 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 	
 	private Boolean manualSpecLabelEnabled;
 
+	private String containerSelectionStrategy;
+
 	private String visitNamePrintMode;
 
 	private Integer visitNamePrintCopies;
@@ -183,6 +185,14 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		this.manualSpecLabelEnabled = manualSpecLabelEnabled;
 	}
 
+	public String getContainerSelectionStrategy() {
+		return containerSelectionStrategy;
+	}
+
+	public void setContainerSelectionStrategy(String containerSelectionStrategy) {
+		this.containerSelectionStrategy = containerSelectionStrategy;
+	}
+
 	public String getVisitNamePrintMode() {
 		return visitNamePrintMode;
 	}
@@ -277,6 +287,7 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		result.setManualPpidEnabled(cp.isManualPpidEnabled());
 		result.setManualVisitNameEnabled(cp.isManualVisitNameEnabled());
 		result.setManualSpecLabelEnabled(cp.isManualSpecLabelEnabled());
+		result.setContainerSelectionStrategy(cp.getContainerSelectionStrategy());
 		result.setVisitNamePrintMode(cp.getVisitNamePrintMode().name());
 		result.setVisitNamePrintCopies(cp.getVisitNamePrintCopies());
 		result.setSpmnLabelPrePrintMode(cp.getSpmnLabelPrePrintMode().name());

@@ -27,4 +27,11 @@
       <column name="reservationTime_MOD" type="${bit.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Audit and track changes to CP based container auto selection strategy">
+    <addColumn tableName="CAT_COLLECTION_PROTOCOL_AUD">
+      <column name="CONTAINER_SEL_STRATEGY" type="${text.type}(32)"/>
+      <column name="containerSelectionStrategy_MOD" type="${bit.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

@@ -39,6 +39,7 @@ import com.krishagni.catissueplus.core.administrative.services.ContainerSelectio
 import com.krishagni.catissueplus.core.administrative.services.StorageContainerService;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
@@ -376,7 +377,20 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			Date reservationTime = Calendar.getInstance().getTime();
 
 			Long cpId = op.getCpId();
-			ContainerSelectionStrategy strategy = selectionStrategyFactory.getStrategy("least-empty");
+			CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getById(cpId);
+			if (cp == null) {
+				throw OpenSpecimenException.userError(CpErrorCode.NOT_FOUND, cpId);
+			}
+
+
+			if (StringUtils.isBlank(cp.getContainerSelectionStrategy())) {
+				return ResponseEvent.response(Collections.emptyList());
+			}
+
+			ContainerSelectionStrategy strategy = selectionStrategyFactory.getStrategy(cp.getContainerSelectionStrategy());
+			if (strategy == null) {
+				throw OpenSpecimenException.userError(CpErrorCode.INV_CONT_SEL_STRATEGY, cp.getContainerSelectionStrategy());
+			}
 
 			List<StorageContainerPosition> reservedPositions = new ArrayList<>();
 			for (TenantDetail detail : op.getTenants()) {

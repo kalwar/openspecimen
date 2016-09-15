@@ -4,8 +4,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,18 +28,20 @@ import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyD
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
 import com.krishagni.catissueplus.core.administrative.events.ReservePositionsOp;
-import com.krishagni.catissueplus.core.administrative.events.TenantDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerPositionDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerSummary;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
+import com.krishagni.catissueplus.core.administrative.events.TenantDetail;
 import com.krishagni.catissueplus.core.administrative.events.VacantPositionsOp;
 import com.krishagni.catissueplus.core.administrative.repository.StorageContainerListCriteria;
+import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategyFactory;
 import com.krishagni.catissueplus.core.administrative.services.StorageContainerService;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.ExportedFileDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.util.MessageUtil;
 
 import edu.common.dynamicextensions.nutility.IoUtil;
 
@@ -49,7 +53,10 @@ public class StorageContainersController {
 	private StorageContainerService storageContainerSvc;
 	
 	@Autowired
-	private HttpServletRequest httpReq;	
+	private HttpServletRequest httpReq;
+
+	@Autowired
+	private ContainerSelectionStrategyFactory containerSelectionStrategyFactory;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
@@ -414,6 +421,21 @@ public class StorageContainersController {
 		ResponseEvent<Integer> resp = storageContainerSvc.cancelReservation(new RequestEvent<>(reservationId));
 		resp.throwErrorIfUnsuccessful();
 		return Collections.singletonMap("vacatedPositions", resp.getPayload());
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/auto-allocation-strategies")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<Map<String, String>> getAllocationStrategies() {
+		String msgPrefix = "container_alloc_";
+		return containerSelectionStrategyFactory.getStrategyNames().stream()
+			.map(name -> {
+				Map<String, String> strategy = new HashMap<>();
+				strategy.put("name", name);
+				strategy.put("caption", MessageUtil.getInstance().getMessage(msgPrefix + name.replace('-', '_')));
+				return strategy;
+			})
+			.collect(Collectors.toList());
 	}
 
 	//

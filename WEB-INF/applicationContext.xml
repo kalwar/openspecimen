@@ -162,6 +162,7 @@
     <property name="specimenLabelGenerator" ref="specimenLabelGenerator"/>
     <property name="visitNameGenerator" ref="visitNameGenerator"/>
     <property name="cpCopier" ref="cpCopier"/>
+    <property name="containerSelFactory" ref="containerSelectionStrategyFactory"/>
   </bean>
 
   <bean id="cpeFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.CpeFactoryImpl">

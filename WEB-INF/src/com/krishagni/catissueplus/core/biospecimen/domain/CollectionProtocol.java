@@ -95,13 +95,15 @@ public class CollectionProtocol extends BaseExtensionEntity {
 	
 	private Boolean manualSpecLabelEnabled;
 
+	private String containerSelectionStrategy;
+
 	private VisitNamePrintMode visitNamePrintMode = VisitNamePrintMode.NONE;
 
 	private Integer visitNamePrintCopies;
 	
 	private SpecimenLabelPrePrintMode spmnLabelPrePrintMode = SpecimenLabelPrePrintMode.NONE;
 	
-	private Set<CpSpecimenLabelPrintSetting> spmnLabelPrintSettings = new HashSet<CpSpecimenLabelPrintSetting>();
+	private Set<CpSpecimenLabelPrintSetting> spmnLabelPrintSettings = new HashSet<>();
 	
 	private Boolean consentsWaived;
 
@@ -289,6 +291,14 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		return manualSpecLabelEnabled != null ? manualSpecLabelEnabled : false;
 	}
 
+	public String getContainerSelectionStrategy() {
+		return containerSelectionStrategy;
+	}
+
+	public void setContainerSelectionStrategy(String containerSelectionStrategy) {
+		this.containerSelectionStrategy = containerSelectionStrategy;
+	}
+
 	public VisitNamePrintMode getVisitNamePrintMode() {
 		return visitNamePrintMode != null ? visitNamePrintMode : VisitNamePrintMode.NONE;
 	}
@@ -434,6 +444,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		setDerivativeLabelFormat(cp.getDerivativeLabelFormat());
 		setAliquotLabelFormat(cp.getAliquotLabelFormat());
 		setManualSpecLabelEnabled(cp.isManualSpecLabelEnabled());
+		setContainerSelectionStrategy(cp.getContainerSelectionStrategy());
 		setVisitNamePrintMode(cp.getVisitNamePrintMode());
 		setVisitNamePrintCopies(cp.getVisitNamePrintCopies());
 		setUnsignedConsentDocumentURL(cp.getUnsignedConsentDocumentURL());
@@ -481,6 +492,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 
 		copyEventsTo(cp);
 
+		cp.setContainerSelectionStrategy(getContainerSelectionStrategy());
 		cp.setActivityStatus(getActivityStatus());
 	}
 	

@@ -1,6 +1,8 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -18,11 +20,20 @@ public class ContainerSelectionStrategyFactoryImpl implements ContainerSelection
 	public ContainerSelectionStrategy getStrategy(String name) {
 		try {
 			Class klass = strategyClasses.get(name);
+			if (klass == null) {
+				return null;
+			}
+
 			return (ContainerSelectionStrategy)klass.newInstance();
 		} catch (Exception e) {
 			throw new RuntimeException("Error instantiating class", e);
 		}
 
+	}
+
+	@Override
+	public List<String> getStrategyNames() {
+		return new ArrayList<>(strategyClasses.keySet());
 	}
 
 	public void setStrategyClasses(Map<String, String> strategyClassNames) {

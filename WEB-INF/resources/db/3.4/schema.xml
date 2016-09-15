@@ -48,4 +48,10 @@
       <column name="RESERVATION_TIME" type="${nullable.ts.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="CP based container auto selection strategy">
+    <addColumn tableName="CATISSUE_COLLECTION_PROTOCOL">
+      <column name="CONTAINER_SEL_STRATEGY" type="${text.type}(32)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>
