@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -413,17 +414,17 @@ public class StorageContainer extends BaseEntity {
 	}
 
 	public boolean hasFreePositionsForReservation() {
-		return (getNoOfColumns() * getNoOfRows() - getOccupiedPositions().size()) > 0;
+		return hasFreePositionsForReservation(1);
+	}
+
+	public boolean hasFreePositionsForReservation(int freePositions) {
+		return (getNoOfColumns() * getNoOfRows() - getOccupiedPositions().size()) > (freePositions - 1);
 	}
 	
 	public Set<Integer> occupiedPositionsOrdinals() {
-		Set<Integer> result = new HashSet<Integer>();
-				
-		for (StorageContainerPosition pos : getOccupiedPositions()) {
-			result.add((pos.getPosTwoOrdinal() - 1) * getNoOfColumns() + pos.getPosOneOrdinal());
-		}
-		
-		return result;
+		return getOccupiedPositions().stream()
+			.map(pos -> (pos.getPosTwoOrdinal() - 1) * getNoOfColumns() + pos.getPosOneOrdinal())
+			.collect(Collectors.toSet());
 	}
 	
 	public String toColumnLabelingScheme(int ordinal) {

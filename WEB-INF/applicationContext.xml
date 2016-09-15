@@ -445,6 +445,7 @@
    <property name="strategyClasses">
      <map>
        <entry key="least-empty" value="com.krishagni.catissueplus.core.administrative.services.impl.LeastEmptyContainerSelectionStrategy"/>
+       <entry key="aliquots-least-empty" value="com.krishagni.catissueplus.core.administrative.services.impl.AliquotsLeastEmptyContainerSelectionStrategy"/>
      </map>
    </property>
   </bean>

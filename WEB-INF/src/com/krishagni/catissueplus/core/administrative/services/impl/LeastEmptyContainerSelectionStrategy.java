@@ -40,8 +40,6 @@ public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionS
 			return (lastSelected = container);
 		}
 
-
-
 		if (CollectionUtils.isEmpty(containerIds)) {
 			long t1 = System.currentTimeMillis();
 			containerIds = daoFactory.getStorageContainerDao().getLeastEmptyContainerId(
@@ -58,8 +56,6 @@ public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionS
 
 			System.err.println("**** SQL execution time: " + (System.currentTimeMillis() - t1) + " ms");
 		}
-
-
 
 		container = daoFactory.getStorageContainerDao().getById(containerIds.remove(0));
 		recentlySelectedContainers.put(key(criteria), container);
