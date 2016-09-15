@@ -3,15 +3,73 @@ angular.module('os.biospecimen.participant.collect-specimens',
   [ 
     'os.biospecimen.models'
   ])
-  .factory('CollectSpecimensSvc', function($state) {
+  .factory('CollectSpecimensSvc', function($state, Container) {
     var data = {};
+
+    function getReservePositionsOp(cpId, specimens) {
+      var aliquots = {}, result = [];
+      angular.forEach(specimens,
+        function(specimen) {
+          if (specimen.storageType == 'Virtual' || (!!specimen.status && specimen.status != 'Pending')) {
+            return;
+          }
+
+          if (specimen.lineage == 'Aliquot') {
+            var key = specimen.parent.id + "-" + specimen.parent.reqId;
+            var tenantDetail = aliquots[key];
+            if (!tenantDetail) {
+              aliquots[key] = tenantDetail = {
+                lineage: specimen.lineage,
+                specimenClass: specimen.specimenClass,
+                specimenType: specimen.type,
+                numOfAliquots: 0
+              };
+
+              result.push(tenantDetail);
+            }
+
+            tenantDetail.numOfAliquots++;
+          } else {
+            result.push({
+              lineage: specimen.lineage,
+              specimenClass: specimen.specimenClass,
+              specimenType: specimen.type
+            })
+          }
+        }
+      );
+
+      return {cpId: cpId, tenants: result};
+    }
+
+    function assignReservedPositions(specimens, positions) {
+      var idx = 0;
+      angular.forEach(specimens,
+        function(specimen) {
+          if (specimen.storageType == 'Virtual' || (!!specimen.status && specimen.status != 'Pending')) {
+            return;
+          }
+
+          specimen.storageLocation = positions[idx++];
+        }
+      );
+    }
+
     return {
       collect: function(stateDetail, visit, specimens, ignoreQtyWarn) {
         data.specimens = specimens;
         data.stateDetail = stateDetail;
         data.visit = visit;
         data.ignoreQtyWarn = ignoreQtyWarn;
-        $state.go('participant-detail.collect-specimens', {visitId: visit.id, eventId: visit.eventId});
+
+        Container.getReservedPositions(getReservePositionsOp(visit.cpId, specimens)).then(
+          function(positions) {
+            if (positions.length > 0) {
+              assignReservedPositions(specimens, positions);
+            }
+            $state.go('participant-detail.collect-specimens', {visitId: visit.id, eventId: visit.eventId});
+          }
+        );
       },
 
       clear: function() {

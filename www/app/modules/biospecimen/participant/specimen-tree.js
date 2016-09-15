@@ -150,57 +150,6 @@ angular.module('os.biospecimen.participant.specimen-tree',
       );
     }
 
-    function getReservePositionsOp(cpId, specimens) {
-      var aliquots = {};
-      var result = [];
-
-      angular.forEach(specimens,
-        function(specimen) {
-          if (specimen.storageType == 'Virtual' || (!!specimen.status && specimen.status != 'Pending')) {
-            return;
-          }
-
-          if (specimen.lineage == 'Aliquot') {
-            var key = specimen.parent.id + "-" + specimen.parent.reqId;
-            var tenantDetail = aliquots[key];
-            if (!tenantDetail) {
-              aliquots[key] = tenantDetail = {
-                lineage: specimen.lineage,
-                specimenClass: specimen.specimenClass,
-                specimenType: specimen.type,
-                numOfAliquots: 0
-              };
-
-              result.push(tenantDetail);
-            }
-
-            tenantDetail.numOfAliquots++;
-          } else {
-            result.push({
-              lineage: specimen.lineage,
-              specimenClass: specimen.specimenClass,
-              specimenType: specimen.type
-            })
-          }
-        }
-      );
-
-      return {cpId: cpId, tenants: result};
-    }
-
-    function assignReservedPositions(specimens, positions) {
-      var idx = 0;
-      angular.forEach(specimens,
-        function(specimen) {
-          if (specimen.storageType == 'Virtual' || (!!specimen.status && specimen.status != 'Pending')) {
-            return;
-          }
-
-          specimen.storageLocation = positions[idx++];
-        }
-      );
-    }
-
     return {
       restrict: 'E',
 
@@ -294,14 +243,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
             return;
           }
 
-          Container.getReservedPositions(getReservePositionsOp(scope.cp.id, specimensToCollect)).then(
-            function(positions) {
-              if (positions.length > 0) {
-                assignReservedPositions(specimensToCollect, positions);
-              }
-              CollectSpecimensSvc.collect(getState(), scope.visit, specimensToCollect);
-            }
-          );
+          CollectSpecimensSvc.collect(getState(), scope.visit, specimensToCollect);
         };
 
         scope.printSpecimenLabels = function() {
