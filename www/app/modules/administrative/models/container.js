@@ -189,5 +189,13 @@ angular.module('os.administrative.models.container', ['os.common.models'])
       );
     }
 
+    Container.getAutoAllocStrategies = function() {
+      return $http.get(Container.url() + 'auto-allocation-strategies').then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     return Container;
   });

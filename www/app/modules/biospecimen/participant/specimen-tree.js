@@ -296,7 +296,9 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
           Container.getReservedPositions(getReservePositionsOp(scope.cp.id, specimensToCollect)).then(
             function(positions) {
-              assignReservedPositions(specimensToCollect, positions);
+              if (positions.length > 0) {
+                assignReservedPositions(specimensToCollect, positions);
+              }
               CollectSpecimensSvc.collect(getState(), scope.visit, specimensToCollect);
             }
           );

@@ -265,6 +265,11 @@
       "query_desc": "Select saved query to use for Specimen Catalog"
     },
 
+    "container": {
+      "title": "Container Settings",
+      "auto_alloc": "Auto Allocation"
+    },
+
     "visit_name_print_modes": {
       "PRE_PRINT": "Pre-print",
       "ON_COMPLETION": "On Completion",
@@ -1062,6 +1067,11 @@
     "column": "Column",
     "replicate": "Replicate",
     "add_another": "Add Another",
+
+    "alloc_strategies": {
+      "aliquots_least_empty": "Aliquots in Same Least Empty Container",
+      "least_empty": "Least Empty Container"
+    },
 
     "pos_selector": "Container Position Selector",
     "selected_pos": "Selected Position: ",

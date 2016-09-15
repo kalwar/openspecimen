@@ -432,7 +432,7 @@ public class StorageContainersController {
 			.map(name -> {
 				Map<String, String> strategy = new HashMap<>();
 				strategy.put("name", name);
-				strategy.put("caption", MessageUtil.getInstance().getMessage(msgPrefix + name.replace('-', '_')));
+				strategy.put("caption", MessageUtil.getInstance().getMessage(msgPrefix + name.replaceAll("-", "_")));
 				return strategy;
 			})
 			.collect(Collectors.toList());

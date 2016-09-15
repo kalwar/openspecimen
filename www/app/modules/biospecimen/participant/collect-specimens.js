@@ -71,7 +71,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
         visit.cprId = cpr.id;
         delete visit.anticipatedVisitDate;
         $scope.visit = visit;
-        $scope.autoPosAllocate = true;
+        $scope.autoPosAllocate = !!$scope.cp.containerSelectionStrategy;
         
         $scope.collDetail = {
           collector: undefined,
