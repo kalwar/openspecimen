@@ -373,6 +373,10 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		long t1 = System.currentTimeMillis();
 		try {
 			ReservePositionsOp op = req.getPayload();
+			if (StringUtils.isNotBlank(op.getReservationToCancel())) {
+				cancelReservation(new RequestEvent<>(op.getReservationToCancel()));
+			}
+
 			String reservationId = UUID.randomUUID().toString();
 			Date reservationTime = Calendar.getInstance().getTime();
 
@@ -381,7 +385,6 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			if (cp == null) {
 				throw OpenSpecimenException.userError(CpErrorCode.NOT_FOUND, cpId);
 			}
-
 
 			if (StringUtils.isBlank(cp.getContainerSelectionStrategy())) {
 				return ResponseEvent.response(Collections.emptyList());

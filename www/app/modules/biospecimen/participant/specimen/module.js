@@ -64,6 +64,18 @@ angular.module('os.biospecimen.specimen',
         resolve: {
           extensionCtxt: function(cp, specimen) {
             return specimen.getExtensionCtxt({cpId: cp.id});
+          },
+
+          reservedPosition: function(cp, specimen, Container) {
+            if (!cp.containerSelectionStrategy) {
+              return null;
+            }
+
+            if (specimen.storageType == 'Virtual' || (!!specimen.status && specimen.status != 'Pending')) {
+              return null;
+            }
+
+            return Container.reservePositionForSpecimen(cp.id, specimen);
           }
         },
         controller: 'AddEditSpecimenCtrl',

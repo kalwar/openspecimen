@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReservePositionsOp {
-
 	private Long cpId;
+
+	private String reservationToCancel;
 
 	private List<TenantDetail> tenants = new ArrayList<>();
 
@@ -15,6 +16,14 @@ public class ReservePositionsOp {
 
 	public void setCpId(Long cpId) {
 		this.cpId = cpId;
+	}
+
+	public String getReservationToCancel() {
+		return reservationToCancel;
+	}
+
+	public void setReservationToCancel(String reservationToCancel) {
+		this.reservationToCancel = reservationToCancel;
 	}
 
 	public List<TenantDetail> getTenants() {

@@ -180,6 +180,24 @@ angular.module('os.administrative.models.container', ['os.common.models'])
       );
     }
 
+    Container.reservePositionForSpecimen = function(cpId, spmn, reservationToCancel) {
+      var op = {
+        cpId: cpId,
+        reservationToCancel: reservationToCancel,
+        tenants: [{
+          specimenClass: spmn.specimenClass,
+          specimenType:  spmn.type,
+          lineage: spmn.lineage
+        }]
+      };
+
+      return Container.getReservedPositions(op).then(
+        function(positions) {
+          return (positions && positions.length > 0) ? positions[0] : {};
+        }
+      );
+    }
+
     Container.cancelReservation = function(reservationId) {
       var params = {reservationId: reservationId};
       return $http.delete(Container.url() + 'reserve-positions', {params: params}).then(
