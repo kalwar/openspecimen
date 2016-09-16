@@ -4,7 +4,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
     $scope, $state, cp, cpr, visit, specimen, extensionCtxt, hasDict,
     reservedPosition, Container, PvManager, Util, ExtensionsUtil) {
 
-    var reallocator;
+    var autoAllocator;
 
     function init() {
       var currSpecimen = $scope.currSpecimen = angular.copy(specimen);
@@ -77,7 +77,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
         loadPvs();
       }
 
-      reallocator = enableReallocator();
+      autoAllocator = enableAutoAllocator();
       $scope.$on('$destroy', cancelReservation);
     }
 
@@ -85,7 +85,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
       $scope.biohazards = PvManager.getPvs('specimen-biohazard');
     };
 
-    function enableReallocator() {
+    function enableAutoAllocator() {
       if (!reservedPosition || $scope.currSpecimen.lineage == 'Aliquot') {
         return undefined;
       }
@@ -116,9 +116,9 @@ angular.module('os.biospecimen.specimen.addedit', [])
       Container.cancelReservation(loc.reservationId).then(
         function() {
           $scope.currSpecimen.storageLocation = {};
-          if (reallocator) {
-            reallocator();
-            reallocator = undefined;
+          if (autoAllocator) {
+            autoAllocator();
+            autoAllocator = undefined;
           }
         }
       );

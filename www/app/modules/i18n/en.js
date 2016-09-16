@@ -546,6 +546,7 @@
     "print": "Print",
     "close_parent": "Close Parent",
     "ops": "Specimen Actions",
+    "auto": "Auto",
 
     "reason_for_closing": "Reason for closing",
 
