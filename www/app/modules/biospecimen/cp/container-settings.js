@@ -49,6 +49,12 @@ angular.module('os.biospecimen.cp')
       setViewCtx();
     }
 
+    $scope.clearStoreAliquots = function() {
+      if (!$scope.contSettingsCtx.cp.containerSelectionStrategy) {
+        $scope.contSettingsCtx.cp.aliquotsInSameContainer = false;
+      }
+    }
+
     $scope.save = function() {
       delete $scope.contSettingsCtx.cp.repositoryNames;
       delete $scope.contSettingsCtx.cp.extensionDetail;

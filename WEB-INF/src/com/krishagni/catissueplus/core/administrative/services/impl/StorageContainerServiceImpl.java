@@ -402,7 +402,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 				boolean allAllocated = false;
 				while (!allAllocated) {
 					long t2 = System.currentTimeMillis();
-					StorageContainer container = strategy.getContainer(detail);
+					StorageContainer container = strategy.getContainer(detail, cp.getAliquotsInSameContainer());
 					if (container == null) {
 						//
 						// TODO: Improve error code

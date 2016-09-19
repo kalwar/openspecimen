@@ -267,7 +267,8 @@
 
     "container": {
       "title": "Container Settings",
-      "auto_alloc": "Auto Allocation"
+      "auto_alloc": "Auto Allocation",
+      "store_aliquots_same_box": "Store aliquots in same box"
     },
 
     "visit_name_print_modes": {

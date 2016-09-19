@@ -335,6 +335,7 @@ public class CollectionProtocolFactoryImpl implements CollectionProtocolFactory 
 		}
 
 		result.setContainerSelectionStrategy(strategy);
+		result.setAliquotsInSameContainer(input.getAliquotsInSameContainer());
 	}
 
 	private void setVisitNamePrintMode(CollectionProtocolDetail input, CollectionProtocol cp, OpenSpecimenException ose) {

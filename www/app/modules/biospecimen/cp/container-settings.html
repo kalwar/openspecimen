@@ -20,8 +20,19 @@
           <div class="col-xs-6">
             <os-select class="form-control" ng-model="contSettingsCtx.cp.containerSelectionStrategy"
               list="contSettingsCtx.allocStrategies" select-prop="name" display-prop="caption"
-              placeholder="{{'cp.container.auto_alloc' | translate}}">
+              placeholder="{{'cp.container.auto_alloc' | translate}}" on-select="clearStoreAliquots()">
             </os-select>
+          </div>
+        </div>
+
+        <div class="form-group clearfix">
+          <div class="col-xs-offset-3 col-xs-6 os-text-checkbox">
+            <div class="checkbox">
+              <os-checkbox ng-model="contSettingsCtx.cp.aliquotsInSameContainer"></os-checkbox>
+            </div>
+            <div class="message os-ctrl-padding-top">
+              <span translate="cp.container.store_aliquots_same_box">Store aliquots in same box</span>
+            </div>
           </div>
         </div>
 
@@ -44,7 +55,12 @@
       <ul class="os-key-values os-one-col">
         <li class="item">
           <strong class="key key-sm" translate="cp.container.auto_alloc">Auto Allocation</strong>
-          <span class="value value-md">{{contSettingsCtx.strategy}}</span>
+          <span class="value value-md">
+            <span>{{contSettingsCtx.strategy}}</span>
+            <span ng-if="contSettingsCtx.cp.aliquotsInSameContainer">
+              (<span translate="cp.container.store_aliquots_same_box">Store aliquots in same box</span>)
+            </span>
+          </span>
         </li>
       </ul>
     </div>

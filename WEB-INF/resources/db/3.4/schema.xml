@@ -52,6 +52,7 @@
   <changeSet author="vpawar" id="CP based container auto selection strategy">
     <addColumn tableName="CATISSUE_COLLECTION_PROTOCOL">
       <column name="CONTAINER_SEL_STRATEGY" type="${text.type}(32)"/>
+      <column name="ALIQUOTS_IN_SAME_CONT" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
 </databaseChangeLog>

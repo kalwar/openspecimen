@@ -97,6 +97,8 @@ public class CollectionProtocol extends BaseExtensionEntity {
 
 	private String containerSelectionStrategy;
 
+	private Boolean aliquotsInSameContainer;
+
 	private VisitNamePrintMode visitNamePrintMode = VisitNamePrintMode.NONE;
 
 	private Integer visitNamePrintCopies;
@@ -299,6 +301,14 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		this.containerSelectionStrategy = containerSelectionStrategy;
 	}
 
+	public Boolean getAliquotsInSameContainer() {
+		return aliquotsInSameContainer;
+	}
+
+	public void setAliquotsInSameContainer(Boolean aliquotsInSameContainer) {
+		this.aliquotsInSameContainer = aliquotsInSameContainer;
+	}
+
 	public VisitNamePrintMode getVisitNamePrintMode() {
 		return visitNamePrintMode != null ? visitNamePrintMode : VisitNamePrintMode.NONE;
 	}
@@ -418,8 +428,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		return collectionProtocolRegistrations;
 	}
 
-	public void setCollectionProtocolRegistrations(
-			Set<CollectionProtocolRegistration> collectionProtocolRegistrations) {
+	public void setCollectionProtocolRegistrations(Set<CollectionProtocolRegistration> collectionProtocolRegistrations) {
 		this.collectionProtocolRegistrations = collectionProtocolRegistrations;
 	}
 
@@ -445,6 +454,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		setAliquotLabelFormat(cp.getAliquotLabelFormat());
 		setManualSpecLabelEnabled(cp.isManualSpecLabelEnabled());
 		setContainerSelectionStrategy(cp.getContainerSelectionStrategy());
+		setAliquotsInSameContainer(cp.getAliquotsInSameContainer());
 		setVisitNamePrintMode(cp.getVisitNamePrintMode());
 		setVisitNamePrintCopies(cp.getVisitNamePrintCopies());
 		setUnsignedConsentDocumentURL(cp.getUnsignedConsentDocumentURL());
@@ -493,6 +503,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		copyEventsTo(cp);
 
 		cp.setContainerSelectionStrategy(getContainerSelectionStrategy());
+		cp.setAliquotsInSameContainer(getAliquotsInSameContainer());
 		cp.setActivityStatus(getActivityStatus());
 	}
 	

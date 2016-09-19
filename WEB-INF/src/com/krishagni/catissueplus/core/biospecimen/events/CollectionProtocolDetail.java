@@ -44,6 +44,8 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 
 	private String containerSelectionStrategy;
 
+	private Boolean aliquotsInSameContainer;
+
 	private String visitNamePrintMode;
 
 	private Integer visitNamePrintCopies;
@@ -51,8 +53,6 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 	private String spmnLabelPrePrintMode;
 	
 	private List<CpSpecimenLabelPrintSettingDetail> spmnLabelPrintSettings;
-
-	private Boolean aliquotsInSameContainer;
 
 	private String activityStatus;
 	
@@ -193,6 +193,14 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		this.containerSelectionStrategy = containerSelectionStrategy;
 	}
 
+	public Boolean getAliquotsInSameContainer() {
+		return aliquotsInSameContainer;
+	}
+
+	public void setAliquotsInSameContainer(Boolean aliquotsInSameContainer) {
+		this.aliquotsInSameContainer = aliquotsInSameContainer;
+	}
+
 	public String getVisitNamePrintMode() {
 		return visitNamePrintMode;
 	}
@@ -223,14 +231,6 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 
 	public void setSpmnLabelPrintSettings(List<CpSpecimenLabelPrintSettingDetail> spmnLabelPrintSettings) {
 		this.spmnLabelPrintSettings = spmnLabelPrintSettings;
-	}
-
-	public Boolean getAliquotsInSameContainer() {
-		return aliquotsInSameContainer;
-	}
-
-	public void setAliquotsInSameContainer(Boolean aliquotsInSameContainer) {
-		this.aliquotsInSameContainer = aliquotsInSameContainer;
 	}
 
 	public String getActivityStatus() {
@@ -288,6 +288,7 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		result.setManualVisitNameEnabled(cp.isManualVisitNameEnabled());
 		result.setManualSpecLabelEnabled(cp.isManualSpecLabelEnabled());
 		result.setContainerSelectionStrategy(cp.getContainerSelectionStrategy());
+		result.setAliquotsInSameContainer(cp.getAliquotsInSameContainer());
 		result.setVisitNamePrintMode(cp.getVisitNamePrintMode().name());
 		result.setVisitNamePrintCopies(cp.getVisitNamePrintCopies());
 		result.setSpmnLabelPrePrintMode(cp.getSpmnLabelPrePrintMode().name());
