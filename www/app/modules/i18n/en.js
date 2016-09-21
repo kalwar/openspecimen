@@ -510,7 +510,7 @@
     "position": "Position",
     "virtually_located": "Virtual",
     "no_specimens_to_show": "No Child Specimens to Show",
-    "aliquot_cnt": "Count of Aliquots",
+    "aliquot_cnt": "Aliquots Count",
     "qty_per_aliquot": "Quantity per Aliquot",
     "aliquots_created": "Successfully created aliquots",
     "derivatives_created": "Successfully created derived specimens",
@@ -548,6 +548,9 @@
     "close_parent": "Close Parent",
     "ops": "Specimen Actions",
     "auto": "Auto",
+    "aliquot_specs": "Aliquots Specifications",
+    "review_locations": "Review Locations",
+    "assign_locations": "Choose Locations",
 
     "reason_for_closing": "Reason for closing",
 
@@ -1592,7 +1595,8 @@
     "search_def_list_tip": "Use $$ to search users' default carts",
     "add_child_specimens": "Add Child Specimens",
     "child_specimens_added": "Successfully added {{count}} child specimens",
-    "available_spmns": "Available Specimens"
+    "available_spmns": "Available Specimens",
+    "select_same_cp_spmns": "Selected specimens should belong to same collection protocol"
   },
 
   "orders": {

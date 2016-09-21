@@ -212,6 +212,14 @@ angular.module('os.biospecimen.specimen',
             var specimens = SpecimensHolder.getSpecimens();
             SpecimensHolder.setSpecimens([]);
             return specimens || [];
+          },
+
+          cp: function(parentSpmns, CollectionProtocol) {
+            if (parentSpmns.length == 0) {
+              return {};
+            }
+
+            return CollectionProtocol.getById(parentSpmns[0].cpId);
           }
         },
         parent: 'signed-in'

@@ -119,14 +119,33 @@ angular.module('os.biospecimen.specimenlist')
       );
     }
 
-    function gotoView(state, params, msgCode) {
+    function gotoView(state, params, msgCode, check) {
       if (!$scope.ctx.selection.any) {
         Alerts.error('specimen_list.' + msgCode);
         return;
       }
 
+      if (check && !check($scope.ctx.selection.specimens)) {
+        return
+      }
+
       SpecimensHolder.setSpecimens($scope.ctx.selection.specimens);
       $state.go(state, params);
+    }
+
+    function ensureSpmnsOfSameCp(spmns) {
+      var cp = undefined, result = true;
+      for (var i = 0; i < spmns.length; ++i) {
+        if (i == 0) {
+          cp = spmns[i].cpId;
+        } else if (cp != spmns[i].cpId) {
+          Alerts.error('specimen_list.select_same_cp_spmns');
+          result = false;
+          break;
+        }
+      }
+
+      return result;
     }
 
     $scope.addChildSpecimens = function() {
@@ -206,7 +225,7 @@ angular.module('os.biospecimen.specimenlist')
     }
     
     $scope.createAliquots = function() {
-      gotoView('specimen-bulk-create-aliquots', {}, 'no_specimens_to_create_aliquots');
+      gotoView('specimen-bulk-create-aliquots', {}, 'no_specimens_to_create_aliquots', ensureSpmnsOfSameCp);
     }
 
     $scope.createDerivatives = function() {
