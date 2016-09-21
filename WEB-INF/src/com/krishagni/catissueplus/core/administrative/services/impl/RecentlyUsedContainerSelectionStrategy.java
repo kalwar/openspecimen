@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -21,6 +23,8 @@ import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 
 @Configurable
 public class RecentlyUsedContainerSelectionStrategy implements ContainerSelectionStrategy {
+	private static Log logger = LogFactory.getLog(RecentlyUsedContainerSelectionStrategy.class);
+
 	@Autowired
 	private DaoFactory daoFactory;
 
@@ -48,7 +52,7 @@ public class RecentlyUsedContainerSelectionStrategy implements ContainerSelectio
 		}
 
 		if (!canContainSpecimen(container, criteria, numFreeLocs)) {
-			container = nextContainer(container.getParentContainer(), container, criteria, numFreeLocs, new HashSet<>());
+			container = nextContainer(container, criteria, numFreeLocs);
 		}
 
 		return (recentlyUsed = container);
@@ -56,6 +60,9 @@ public class RecentlyUsedContainerSelectionStrategy implements ContainerSelectio
 
 	@SuppressWarnings("unchecked")
 	private StorageContainer getRecentlySelectedContainer(TenantDetail crit) {
+		//
+		// first lookup containers used for (cp, class, type) combination
+		//
 		List<StorageContainer> containers = getRecentlySelectedContainerQuery(crit)
 			.add(Restrictions.eq("spmn.specimenClass", crit.getSpecimenClass()))
 			.add(Restrictions.eq("spmn.specimenType", crit.getSpecimenType()))
@@ -65,6 +72,9 @@ public class RecentlyUsedContainerSelectionStrategy implements ContainerSelectio
 			return containers.iterator().next();
 		}
 
+		//
+		// when above fails, lookup containers used for cp alone
+		//
 		containers = getRecentlySelectedContainerQuery(crit).list();
 		return CollectionUtils.isNotEmpty(containers) ? containers.iterator().next() : null;
 	}
@@ -83,61 +93,54 @@ public class RecentlyUsedContainerSelectionStrategy implements ContainerSelectio
 			.setMaxResults(1);
 	}
 
+	private StorageContainer nextContainer(StorageContainer last, TenantDetail crit, int freeLocs) {
+		logger.info(String.format(
+			"Finding next container satisfying criteria (cp = %d, class = %s, type = %s, free locs = %d) with base %s",
+			crit.getCpId(), crit.getSpecimenClass(), crit.getSpecimenType(), freeLocs, last.getName()
+		));
+		return nextContainer(last.getParentContainer(), last, crit, freeLocs, new HashSet<>());
+	}
+
 	private StorageContainer nextContainer(StorageContainer parent, StorageContainer last, TenantDetail criteria, int freeLocs, Set<StorageContainer> visited) {
 		if (parent == null) {
 			return null;
 		}
 
-		System.err.println("**** RU: Exploring children of: " + parent.getName() + ": " + parent.getType().getName() + ": " + ((last != null) ? last.getName() : "none"));
+		logger.info(String.format("Exploring children of %s, last = %s", parent.getName(), (last != null) ? last.getName() : "none"));
 
 		int childIdx = -1;
 		List<StorageContainer> children = parent.getChildContainersSortedByPosition();
-//			.stream().filter(c -> !visited.contains(c))
-//			.collect(Collectors.toList());
-
 		if (last != null) {
 			for (StorageContainer container : children) {
 				childIdx++;
-
 				if (container.getPosition().getPosition() == last.getPosition().getPosition()) {
-					System.err.println("**** RU: Found " + container.getName() + " at " + childIdx);
+					logger.info(String.format("Found container %s at %d", container.getName(), childIdx));
 					break;
 				}
 			}
 		}
 
 		for (int i = childIdx + 1; i < children.size(); ++i) {
-			if (visited.add(children.get(i))) {
-				StorageContainer container = nextContainer(children.get(i), null, criteria, freeLocs, visited);
-				if (container != null) {
-					System.err.println("**** RU: Selected " + container.getName());
-					return container;
-				}
+			if (!visited.add(children.get(i))) {
+				continue;
+			}
+
+			StorageContainer container = nextContainer(children.get(i), null, criteria, freeLocs, visited);
+			if (container != null) {
+				return container;
 			}
 		}
 
-		for (int i = 0; i < (childIdx + 1); ++i) {
-			if (visited.add(children.get(i))) {
-				StorageContainer container = nextContainer(children.get(i), null, criteria, freeLocs, visited);
-				if (container != null) {
-					System.err.println("**** RU: Selected " + container.getName());
-					return container;
-				}
-			}
-		}
-
-		System.err.println("**** RU: Probing parent " + parent.getName());
+		logger.info("Probing whether container " + parent.getName() + " can satisfy request");
 		if (canContainSpecimen(parent, criteria, freeLocs)) {
-			System.err.println("**** RU: Selected " + parent.getName());
+			logger.info("Selected container " + parent.getName());
 			return parent;
-		}
-
-		if (visited.add(parent)) {
-			System.err.println("**** RU: Visited " + parent.getName());
+		} else if (visited.add(parent)) {
 			return nextContainer(parent.getParentContainer(), parent, criteria, freeLocs, visited);
+		} else {
+			logger.info("End of tree " + parent.getName());
+			return null;
 		}
-
-		return null;
 	}
 
 	private boolean canContainSpecimen(StorageContainer container, TenantDetail crit, int freeLocs) {
