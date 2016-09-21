@@ -1071,8 +1071,8 @@
     "add_another": "Add Another",
 
     "alloc_strategies": {
-      "aliquots_least_empty": "Aliquots in Same Least Empty Container",
-      "least_empty": "Least Empty Container"
+      "least_empty": "Least Empty Container",
+      "recently_used": "Recently Used Container"
     },
 
     "pos_selector": "Container Position Selector",

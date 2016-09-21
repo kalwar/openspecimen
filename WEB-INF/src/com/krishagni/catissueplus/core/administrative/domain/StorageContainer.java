@@ -420,7 +420,13 @@ public class StorageContainer extends BaseEntity {
 	public boolean hasFreePositionsForReservation(int freePositions) {
 		return (getNoOfColumns() * getNoOfRows() - getOccupiedPositions().size()) > (freePositions - 1);
 	}
-	
+
+	public List<StorageContainer> getChildContainersSortedByPosition() {
+		return getChildContainers().stream()
+			.sorted((c1, c2) -> c1.getPosition().getPosition() - c2.getPosition().getPosition())
+			.collect(Collectors.toList());
+	}
+
 	public Set<Integer> occupiedPositionsOrdinals() {
 		return getOccupiedPositions().stream()
 			.map(pos -> (pos.getPosTwoOrdinal() - 1) * getNoOfColumns() + pos.getPosOneOrdinal())
@@ -670,7 +676,7 @@ public class StorageContainer extends BaseEntity {
 	
 	public Set<CollectionProtocol> computeAllowedCps() {
 		if (CollectionUtils.isNotEmpty(getAllowedCps()) || getParentContainer() == null) {
-			return new HashSet<CollectionProtocol>(getAllowedCps());
+			return new HashSet<>(getAllowedCps());
 		}
 		
 		return getParentContainer().computeAllowedCps();
@@ -679,18 +685,18 @@ public class StorageContainer extends BaseEntity {
 	public Set<String> computeAllowedSpecimenClasses() {
 		if (CollectionUtils.isNotEmpty(getAllowedSpecimenTypes()) || 
 				CollectionUtils.isNotEmpty(getAllowedSpecimenClasses())) {
-			return new HashSet<String>(getAllowedSpecimenClasses());
+			return new HashSet<>(getAllowedSpecimenClasses());
 		}
 		
 		if (getParentContainer() != null) {
 			return getParentContainer().computeAllowedSpecimenClasses();
 		}
 				
-		return new HashSet<String>(getDaoFactory().getPermissibleValueDao().getSpecimenClasses());
+		return new HashSet<>(getDaoFactory().getPermissibleValueDao().getSpecimenClasses());
 	}
 	
 	public Set<String> computeAllowedSpecimenTypes() {
-		Set<String> types = new HashSet<String>();
+		Set<String> types = new HashSet<>();
 		if (CollectionUtils.isNotEmpty(getAllowedSpecimenTypes())) {
 			types.addAll(getAllowedSpecimenTypes());
 		} else if (CollectionUtils.isEmpty(getAllowedSpecimenClasses()) && getParentContainer() != null) {
@@ -804,7 +810,7 @@ public class StorageContainer extends BaseEntity {
 		getAllowedCps().remove(cp);
 		updateComputedCps();
 	}
-	
+
 	private void deleteWithoutCheck() {
 		for (StorageContainer child: getChildContainers()) {
 			child.deleteWithoutCheck();

@@ -438,6 +438,7 @@
    <property name="strategyClasses">
      <map>
        <entry key="least-empty" value="com.krishagni.catissueplus.core.administrative.services.impl.LeastEmptyContainerSelectionStrategy"/>
+       <entry key="recently-used" value="com.krishagni.catissueplus.core.administrative.services.impl.RecentlyUsedContainerSelectionStrategy"/>
      </map>
    </property>
   </bean>

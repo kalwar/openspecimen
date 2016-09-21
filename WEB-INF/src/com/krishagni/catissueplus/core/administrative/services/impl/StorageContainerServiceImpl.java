@@ -404,10 +404,9 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 					long t2 = System.currentTimeMillis();
 					StorageContainer container = strategy.getContainer(detail, cp.getAliquotsInSameContainer());
 					if (container == null) {
-						//
-						// TODO: Improve error code
-						//
-						throw OpenSpecimenException.userError(StorageContainerErrorCode.NO_FREE_SPACE);
+						ResponseEvent<List<StorageLocationSummary>> resp = new ResponseEvent<>(Collections.emptyList());
+						resp.setRollback(true);
+						return resp;
 					}
 
 					int numPositions = detail.getNumOfAliquots();
