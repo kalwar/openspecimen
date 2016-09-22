@@ -6,6 +6,7 @@ import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -233,6 +234,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 	@Override
 	@SuppressWarnings(value = "unchecked")
 	public List<Long> getLeastEmptyContainerId(ContainerSelectorCriteria crit) {
+		getCurrentSession().flush();
 		return getCurrentSession().getNamedQuery(GET_LEAST_EMPTY_CONTAINER_ID)
 			.setLong("cpId", crit.cpId())
 			.setString("specimenClass", crit.specimenClass())
@@ -247,6 +249,13 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 	public int deleteReservedPositions(List<String> reservationIds) {
 		return getCurrentSession().getNamedQuery(DEL_POS_BY_RSV_ID)
 			.setParameterList("reservationIds", reservationIds)
+			.executeUpdate();
+	}
+
+	@Override
+	public int deleteReservedPositionsOlderThan(Date expireTime) {
+		return getCurrentSession().getNamedQuery(DEL_EXPIRED_RSV_POS)
+			.setDate("expireTime", expireTime)
 			.executeUpdate();
 	}
 
@@ -536,5 +545,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 	private static final String GET_LEAST_EMPTY_CONTAINER_ID = FQN + ".getLeastEmptyContainerId";
 
 	private static final String DEL_POS_BY_RSV_ID = FQN + ".deletePositionsByReservationIds";
+
+	private static final String DEL_EXPIRED_RSV_POS = FQN + ".deleteReservationsOlderThanTime";
 
 }

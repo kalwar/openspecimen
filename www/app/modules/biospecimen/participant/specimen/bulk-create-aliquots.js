@@ -28,6 +28,7 @@ angular.module('os.biospecimen.specimen')
       if (!!cp.containerSelectionStrategy) {
         $scope.ctx.step2Title = 'specimens.review_locations';
         $scope.ctx.autoPosAllocate = true;
+        $scope.$on('$destroy', vacateReservedPositions);
       } else {
         $scope.ctx.step2Title= 'specimens.assign_locations';
         $scope.ctx.autoPosAllocate = false;

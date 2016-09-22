@@ -129,21 +129,6 @@ angular.module('os.biospecimen.specimenlist')
       $state.go(state, params);
     }
 
-    function ensureSpmnsOfSameCp(spmns) {
-      var cp = undefined, result = true;
-      for (var i = 0; i < spmns.length; ++i) {
-        if (i == 0) {
-          cp = spmns[i].cpId;
-        } else if (cp != spmns[i].cpId) {
-          Alerts.error('specimen_list.select_same_cp_spmns');
-          result = false;
-          break;
-        }
-      }
-
-      return result;
-    }
-
     $scope.addChildSpecimens = function() {
       var list = $scope.ctx.list;
       var oldLen = list.specimens.length;

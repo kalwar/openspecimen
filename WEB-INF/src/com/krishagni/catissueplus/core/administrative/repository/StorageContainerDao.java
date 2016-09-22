@@ -1,6 +1,7 @@
 
 package com.krishagni.catissueplus.core.administrative.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,5 +37,7 @@ public interface StorageContainerDao extends Dao<StorageContainer> {
 	public List<Long> getLeastEmptyContainerId(ContainerSelectorCriteria crit);
 
 	public int deleteReservedPositions(List<String> reservationIds);
+
+	public int deleteReservedPositionsOlderThan(Date expireTime);
 }
 	

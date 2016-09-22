@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
@@ -36,6 +37,7 @@ import com.krishagni.catissueplus.core.administrative.repository.StorageContaine
 import com.krishagni.catissueplus.core.administrative.services.ContainerMapExporter;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategy;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategyFactory;
+import com.krishagni.catissueplus.core.administrative.services.ScheduledTaskManager;
 import com.krishagni.catissueplus.core.administrative.services.StorageContainerService;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -57,7 +59,7 @@ import com.krishagni.catissueplus.core.common.service.ObjectStateParamsResolver;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
-public class StorageContainerServiceImpl implements StorageContainerService, ObjectStateParamsResolver {
+public class StorageContainerServiceImpl implements StorageContainerService, ObjectStateParamsResolver, InitializingBean {
 	private DaoFactory daoFactory;
 	
 	private StorageContainerFactory containerFactory;
@@ -69,6 +71,8 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	private SpecimenResolver specimenResolver;
 
 	private ContainerSelectionStrategyFactory selectionStrategyFactory;
+
+	private ScheduledTaskManager taskManager;
 
 	public DaoFactory getDaoFactory() {
 		return daoFactory;
@@ -100,6 +104,10 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 	public void setSelectionStrategyFactory(ContainerSelectionStrategyFactory selectionStrategyFactory) {
 		this.selectionStrategyFactory = selectionStrategyFactory;
+	}
+
+	public void setTaskManager(ScheduledTaskManager taskManager) {
+		this.taskManager = taskManager;
 	}
 
 	@Override
@@ -562,6 +570,25 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		}
 
 		return daoFactory.getStorageContainerDao().getContainerIds(key, value);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		taskManager.scheduleWithFixedDelay(
+			new Runnable() {
+				@Override
+				@PlusTransactional
+				public void run() {
+					try {
+						Calendar cal = Calendar.getInstance();
+						cal.add(Calendar.MINUTE, -5);
+						daoFactory.getStorageContainerDao().deleteReservedPositionsOlderThan(cal.getTime());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}, 5
+		);
 	}
 
 	private StorageContainerListCriteria addContainerListCriteria(StorageContainerListCriteria crit) {

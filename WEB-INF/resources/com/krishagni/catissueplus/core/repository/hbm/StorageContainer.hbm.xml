@@ -149,6 +149,15 @@
         p.reservationId in (:reservationIds)
     </query>
 
+    <query name="deleteReservationsOlderThanTime">
+      <![CDATA[
+        delete from
+          com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition p
+        where
+          p.reservationTime < :expireTime
+      ]]>
+    </query>
+
     <sql-query name="getAncestors">
       <return-scalar column="ancestorId" type="long"/>
       <return-scalar column="parentId"   type="long"/>
