@@ -119,14 +119,10 @@ angular.module('os.biospecimen.specimenlist')
       );
     }
 
-    function gotoView(state, params, msgCode, check) {
+    function gotoView(state, params, msgCode) {
       if (!$scope.ctx.selection.any) {
         Alerts.error('specimen_list.' + msgCode);
         return;
-      }
-
-      if (check && !check($scope.ctx.selection.specimens)) {
-        return
       }
 
       SpecimensHolder.setSpecimens($scope.ctx.selection.specimens);
@@ -225,7 +221,7 @@ angular.module('os.biospecimen.specimenlist')
     }
     
     $scope.createAliquots = function() {
-      gotoView('specimen-bulk-create-aliquots', {}, 'no_specimens_to_create_aliquots', ensureSpmnsOfSameCp);
+      gotoView('specimen-bulk-create-aliquots', {}, 'no_specimens_to_create_aliquots');
     }
 
     $scope.createDerivatives = function() {

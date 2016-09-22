@@ -219,7 +219,12 @@ angular.module('os.biospecimen.specimen',
               return {};
             }
 
-            return CollectionProtocol.getById(parentSpmns[0].cpId);
+            var cpId = parentSpmns[0].cpId;
+            if (parentSpmns.every(function(spmn) { return spmn.cpId == cpId })) {
+              return CollectionProtocol.getById(cpId);
+            } else {
+              return {};
+            }
           }
         },
         parent: 'signed-in'
