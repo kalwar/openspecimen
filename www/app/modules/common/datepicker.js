@@ -108,10 +108,15 @@ angular.module('openspecimen')
           } 
         });
 
+        if (tAttrs.ngRequired) {
+          inputEl.attr("ng-required", tAttrs.ngRequired);
+        }
+
         inputEl.attr('ng-model', tAttrs.date)
           .attr('date-only', tAttrs.dateOnly)
-          .attr('date-only-fmt', tAttrs.dateOnlyFmt);
- 
+          .attr('date-only-fmt', tAttrs.dateOnlyFmt)
+          .attr('datepicker-append-to-body', tAttrs.appendToBody || false);
+
         var fmt = tAttrs.dateFormat;
         if (!fmt) {
           fmt = $rootScope.global.shortDateFmt;
