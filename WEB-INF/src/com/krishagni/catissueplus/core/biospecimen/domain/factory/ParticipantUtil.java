@@ -107,9 +107,9 @@ public class ParticipantUtil {
 	public static void ensureLockedFieldsAreUntouched(Participant existing, Participant newParticipant) {
 		List<String> lockedFields = Collections.emptyList();
 
-		CpWorkflowConfig.Workflow workflow = WorkflowUtil.getInstance().getSysWorkflow(LOCKED_PARTICIPANT_FIELDS);
-		if (workflow != null && workflow.getData().get("fields") instanceof List) {
-			lockedFields = (List<String>)workflow.getData().get("fields");
+		CpWorkflowConfig.Workflow workflow = WorkflowUtil.getInstance().getSysWorkflow(LOCKED_FIELDS);
+		if (workflow != null && workflow.getData().get("participant") instanceof List) {
+			lockedFields = (List<String>)workflow.getData().get("participant");
 			if (lockedFields == null) {
 				lockedFields = Collections.emptyList();
 			}
@@ -152,7 +152,7 @@ public class ParticipantUtil {
 		return ConfigUtil.getInstance().getStrSetting(ConfigParams.MODULE, property, null);
 	}
 
-	private static String LOCKED_PARTICIPANT_FIELDS = "locked-participant-fields";
+	private static String LOCKED_FIELDS = "locked-fields";
 
 	private static String PART_FIELD_PREFIX = "cpr.participant.";
 
