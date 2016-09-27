@@ -32,8 +32,12 @@ public class WorkflowUtil {
 		return instance;
 	}
 
+	public CpWorkflowConfig getSysWorkflows() {
+		return getSysWorkflows0();
+	}
+
 	public Workflow getSysWorkflow(String name) {
-		CpWorkflowConfig sysWorkflows = getSysWorkflows();
+		CpWorkflowConfig sysWorkflows = getSysWorkflows0();
 		if (sysWorkflows == null) {
 			return null;
 		}
@@ -41,7 +45,7 @@ public class WorkflowUtil {
 		return sysWorkflows.getWorkflows().get(name);
 	}
 
-	private CpWorkflowConfig getSysWorkflows() {
+	private CpWorkflowConfig getSysWorkflows0() {
 		if (sysWorkflows != null) {
 			return sysWorkflows;
 		}

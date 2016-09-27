@@ -1029,12 +1029,20 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	@PlusTransactional
 	public ResponseEvent<CpWorkflowCfgDetail> getWorkflows(RequestEvent<Long> req) {
 		Long cpId = req.getPayload();
-		CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getById(cpId);
-		if (cp == null) {
-			return ResponseEvent.userError(CpErrorCode.NOT_FOUND);
+		CollectionProtocol cp = null;
+
+		CpWorkflowConfig cfg;
+		if (cpId == null || cpId == -1L) {
+			cfg = WorkflowUtil.getInstance().getSysWorkflows();
+		} else {
+			cp = daoFactory.getCollectionProtocolDao().getById(cpId);
+			if (cp == null) {
+				return ResponseEvent.userError(CpErrorCode.NOT_FOUND);
+			}
+
+			cfg = daoFactory.getCollectionProtocolDao().getCpWorkflows(cpId);
 		}
-		
-		CpWorkflowConfig cfg = daoFactory.getCollectionProtocolDao().getCpWorkflows(cpId);
+
 		if (cfg == null) {
 			cfg = new CpWorkflowConfig();
 			cfg.setCp(cp);
