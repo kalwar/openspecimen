@@ -26,7 +26,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,6 +35,7 @@ import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
+import com.krishagni.catissueplus.core.biospecimen.WorkflowUtil;
 import com.krishagni.catissueplus.core.biospecimen.domain.AliquotSpecimensRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
@@ -89,8 +89,6 @@ import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.EntityDeleteResp;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
-import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
-import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.service.EmailService;
 import com.krishagni.catissueplus.core.common.service.ObjectStateParamsResolver;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
@@ -105,7 +103,7 @@ import com.krishagni.rbac.common.errors.RbacErrorCode;
 import com.krishagni.rbac.service.RbacService;
 
 
-public class CollectionProtocolServiceImpl implements CollectionProtocolService, ObjectStateParamsResolver, InitializingBean {
+public class CollectionProtocolServiceImpl implements CollectionProtocolService, ObjectStateParamsResolver {
 
 	private ThreadPoolTaskExecutor taskExecutor;
 
@@ -122,10 +120,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	private EmailService emailService;
 
 	private ListGenerator listGenerator;
-
-	private ConfigurationService cfgSvc;
-
-	private CpWorkflowConfig sysWorkflows;
 
 	private CpReportSettingsFactory rptSettingsFactory;
 
@@ -161,10 +155,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	public void setListGenerator(ListGenerator listGenerator) {
 		this.listGenerator = listGenerator;
-	}
-
-	public void setCfgSvc(ConfigurationService cfgSvc) {
-		this.cfgSvc = cfgSvc;
 	}
 
 	public void setRptSettingsFactory(CpReportSettingsFactory rptSettingsFactory) {
@@ -1194,18 +1184,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		return daoFactory.getCollectionProtocolDao().getCpIds(key, value);
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		cfgSvc.registerChangeListener(ConfigParams.MODULE, new ConfigChangeListener() {
-			@Override
-			public void onConfigChange(String name, String value) {
-				if (StringUtils.isBlank(name) || name.equals(ConfigParams.SYS_WORKFLOWS)) {
-					sysWorkflows = null;
-				}
-			}
-		});
-	}
-
 	private CpListCriteria addCpListCriteria(CpListCriteria crit) {
 		Set<Long> cpIds = AccessCtrlMgr.getInstance().getReadableCpIds();
 		if (cpIds != null && cpIds.isEmpty()) {
@@ -1871,23 +1849,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	}
 
 	private Workflow getSysWorkflow(String name) {
-		return getSysWorkflows().getWorkflows().get(name);
-	}
-
-	private CpWorkflowConfig getSysWorkflows() {
-		if (sysWorkflows == null) {
-			synchronized (this) {
-				if (sysWorkflows == null) {
-					String config = ConfigUtil.getInstance().getFileContent(ConfigParams.MODULE, ConfigParams.SYS_WORKFLOWS, null);
-					sysWorkflows = new CpWorkflowConfig();
-					if (StringUtils.isNotBlank(config)) {
-						sysWorkflows.setWorkflowsJson(config);
-					}
-				}
-			}
-		}
-
-		return sysWorkflows;
+		return WorkflowUtil.getInstance().getSysWorkflow(name);
 	}
 
 	private void setListLimit(Map<String, Object> listReq, ListConfig cfg) {
