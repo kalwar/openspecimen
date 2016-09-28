@@ -29,6 +29,11 @@ angular.module('openspecimen')
       restrict: 'A',
 
       compile: function(tElem, tAttrs) {
+        if (!tAttrs.osDisableFields) {
+          // no options provided
+          return;
+        }
+
         angular.forEach(tElem.find(inputTags),
           function(el) {
             var attrFn = elDataAttrs[el.tagName];

@@ -447,9 +447,13 @@ public class Utility {
 		} else if (val1 instanceof BaseEntity) {
 			return ((BaseEntity) val1).sameAs(val2);
 		} else {
+			//
+			// if-else is hack for DE date fields in bulk import
+			//
 			if (val1 instanceof String && val2 instanceof Long) {
-				// hack for DE date fields in bulk import
 				val2 = val2.toString();
+			} else if (val1 instanceof Long && val2 instanceof String) {
+				val1 = val1.toString();
 			}
 
 			return val1.equals(val2);

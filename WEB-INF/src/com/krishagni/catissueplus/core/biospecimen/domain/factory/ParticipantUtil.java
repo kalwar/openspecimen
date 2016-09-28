@@ -110,9 +110,6 @@ public class ParticipantUtil {
 		CpWorkflowConfig.Workflow workflow = WorkflowUtil.getInstance().getSysWorkflow(LOCKED_FIELDS);
 		if (workflow != null && workflow.getData().get("participant") instanceof List) {
 			lockedFields = (List<String>)workflow.getData().get("participant");
-			if (lockedFields == null) {
-				lockedFields = Collections.emptyList();
-			}
 		}
 
 		lockedFields = lockedFields.stream()
