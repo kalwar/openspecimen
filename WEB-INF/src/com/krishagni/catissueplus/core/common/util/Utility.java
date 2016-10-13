@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.io.BufferedInputStream;
+
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -42,6 +45,8 @@ import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
 import com.krishagni.catissueplus.core.common.PdfUtil;
 
 import au.com.bytecode.opencsv.CSVWriter;
+import org.apache.tika.parser.txt.CharsetDetector;
+import org.apache.tika.parser.txt.CharsetMatch;
 
 public class Utility {
 	private static final String key = "0pEN@eSEncRyPtKy";
@@ -406,8 +411,8 @@ public class Utility {
 	}
 
 	public static List<String> diff(BaseExtensionEntity obj1, BaseExtensionEntity obj2, List<String> fields) {
-		Map<String, Object> map1 = obj1.getExtension().getAttrValues();
-		Map<String, Object> map2 = obj2.getExtension().getAttrValues();
+		Map<String, Object> map1 = getExtnAttrValues(obj1);
+		Map<String, Object> map2 = getExtnAttrValues(obj2);
 
 		return fields.stream().filter(field -> {
 			if (!field.startsWith("extensionDetail.attrsMap.")) {
@@ -421,6 +426,14 @@ public class Utility {
 
 	public static List<String> equals(Object obj1, Object obj2, List<String> fields) {
 		return fields.stream().filter(field -> !equals(obj1, obj2, field)).collect(Collectors.toList());
+	}
+
+	private static Map<String, Object> getExtnAttrValues(BaseExtensionEntity obj) {
+		if (obj.getExtension() != null) {
+			return obj.getExtension().getAttrValues();
+		}
+
+		return Collections.emptyMap();
 	}
 
 	private static boolean equals(Object obj1, Object obj2, String fieldName) {
@@ -524,5 +537,33 @@ public class Utility {
 		}
 
 		return false;
+	}
+
+	public static String detectFileCharset(String file) {
+		InputStream in = null;
+		try {
+			in = new BufferedInputStream(new FileInputStream(file));
+			return detectFileCharset(in);
+		} catch (IOException ioe) {
+			throw new RuntimeException("Error while detecting character set", ioe);
+		} finally {
+			IOUtils.closeQuietly(in);
+		}
+	}
+
+	public static String detectFileCharset(InputStream in) {
+		try {
+			CharsetDetector detector = new CharsetDetector();
+			detector.setText(in);
+
+			CharsetMatch match = detector.detect();
+			return match != null ? match.getName() : "UTF-8";
+		} catch (IOException ioe) {
+			throw new RuntimeException("Error detecting character set", ioe);
+		}
+	}
+	
+	public static long daysBetween(Date start, Date end) {
+		return TimeUnit.DAYS.convert(end.getTime() - start.getTime(), TimeUnit.MILLISECONDS);
 	}
 }

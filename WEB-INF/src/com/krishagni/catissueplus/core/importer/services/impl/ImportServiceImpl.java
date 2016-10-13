@@ -16,6 +16,8 @@ import java.util.UUID;
 import com.krishagni.catissueplus.core.common.util.CsvException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -59,6 +61,8 @@ import com.krishagni.catissueplus.core.importer.services.ObjectSchemaFactory;
 import edu.common.dynamicextensions.query.cachestore.LinkedEhCacheMap;
 
 public class ImportServiceImpl implements ImportService {
+	private static final Log logger = LogFactory.getLog(ImportServiceImpl.class);
+
 	private ConfigurationService cfgSvc;
 
 	private ImportJobDao importJobDao;
@@ -372,7 +376,7 @@ public class ImportServiceImpl implements ImportService {
 				saveJob(totalRecords, failedRecords, Status.FAILED);
 				failed(csvEx);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("Error running import records job", e);
 				saveJob(totalRecords, failedRecords, Status.FAILED);
 				failed(e);
 			} finally {
