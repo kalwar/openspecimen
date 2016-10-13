@@ -370,7 +370,7 @@ public class ImportServiceImpl implements ImportService {
 
 				success();
 			} catch (CsvException csvEx) {
-				csvEx.printStackTrace();
+				logger.error("Error retrieving import records/header from csv file", csvEx);
 				csvWriter.writeNext(csvEx.getErroneousLine());
 				csvWriter.writeNext(new String[] { csvEx.getMessage()});
 				saveJob(totalRecords, failedRecords, Status.FAILED);
