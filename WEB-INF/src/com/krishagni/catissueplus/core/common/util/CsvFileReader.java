@@ -98,8 +98,9 @@ public class CsvFileReader implements CsvReader {
 	}
 
 	private void createColumnNameIdxMap() {
+		String[] line = null;
 		try {
-			String[] line = csvReader.readNext();
+			line = csvReader.readNext();
 			if (line == null || line.length == 0) {
 				throw new CsvException("CSV file column names line empty");
 			}
@@ -107,12 +108,12 @@ public class CsvFileReader implements CsvReader {
 			for (int i = 0; i < line.length; ++i) {
 				if (line[i] == null || line[i].trim().length() == 0) {
 					throw new CsvException(
-							"CSV file column names line has empty/blank column names");
+							"CSV file column names line has empty/blank column names", line);
 				}
 				columnNameIdxMap.put(line[i].trim(), i);
 			}
 		} catch (IOException e) {
-			throw new CsvException("Error reading CSV file column names line", e);
+			throw new CsvException("Error reading CSV file column names line", line , e);
 		}
 	}
 

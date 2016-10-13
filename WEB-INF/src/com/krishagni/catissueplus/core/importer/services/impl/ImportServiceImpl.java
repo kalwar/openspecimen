@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.krishagni.catissueplus.core.common.util.CsvException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -345,6 +346,7 @@ public class ImportServiceImpl implements ImportService {
 				ObjectImporter<Object, Object> importer = importerFactory.getImporter(job.getName());
 
 				String filePath = getJobDir(job.getId()) + File.separator + "input.csv";
+				csvWriter = getOutputCsvWriter(job);
 				objReader = new ObjectReader(
 						filePath, schema, 
 						ConfigUtil.getInstance().getDeDateFmt(),
@@ -354,7 +356,6 @@ public class ImportServiceImpl implements ImportService {
 				columnNames.add("OS_IMPORT_STATUS");
 				columnNames.add("OS_ERROR_MESSAGE");
 				
-				csvWriter = getOutputCsvWriter(job);
 				csvWriter.writeNext(columnNames.toArray(new String[0]));
 				
 				if (job.getCsvtype() == CsvType.MULTIPLE_ROWS_PER_OBJ) {
@@ -364,6 +365,12 @@ public class ImportServiceImpl implements ImportService {
 				}
 
 				success();
+			} catch (CsvException csvEx) {
+				csvEx.printStackTrace();
+				csvWriter.writeNext(csvEx.getErroneousLine());
+				csvWriter.writeNext(new String[] { csvEx.getMessage()});
+				saveJob(totalRecords, failedRecords, Status.FAILED);
+				failed(csvEx);
 			} catch (Exception e) {
 				e.printStackTrace();
 				saveJob(totalRecords, failedRecords, Status.FAILED);
