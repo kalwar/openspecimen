@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.krishagni.catissueplus.core.common.util.CsvException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -36,6 +35,7 @@ import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
+import com.krishagni.catissueplus.core.common.util.CsvException;
 import com.krishagni.catissueplus.core.common.util.CsvFileWriter;
 import com.krishagni.catissueplus.core.common.util.CsvWriter;
 import com.krishagni.catissueplus.core.importer.domain.ImportJob;
@@ -369,13 +369,13 @@ public class ImportServiceImpl implements ImportService {
 				}
 
 				success();
-			} catch (CsvException csvEx) {
-				logger.error("Error retrieving import records/header from csv file", csvEx);
-				csvWriter.writeNext(csvEx.getErroneousLine());
-				csvWriter.writeNext(new String[] { csvEx.getMessage()});
-				saveJob(totalRecords, failedRecords, Status.FAILED);
-				failed(csvEx);
 			} catch (Exception e) {
+				if (e instanceof CsvException) {
+					logger.error("Error reading input CSV file " + ((CsvException) e).getErroneousLine(), e);
+					csvWriter.writeNext(((CsvException) e).getErroneousLine());
+					csvWriter.writeNext(new String[] { e.getMessage()});
+				}
+
 				logger.error("Error running import records job", e);
 				saveJob(totalRecords, failedRecords, Status.FAILED);
 				failed(e);
