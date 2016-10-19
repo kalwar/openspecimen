@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -370,13 +371,14 @@ public class ImportServiceImpl implements ImportService {
 
 				success();
 			} catch (Exception e) {
+				String[] errorLine = new String[] { e.getMessage() };
 				if (e instanceof CsvException) {
-					logger.error("Error reading input CSV file " + ((CsvException) e).getErroneousLine(), e);
-					csvWriter.writeNext(((CsvException) e).getErroneousLine());
-					csvWriter.writeNext(new String[] { e.getMessage()});
+					errorLine = ((CsvException) e).getErroneousLine();
 				}
 
 				logger.error("Error running import records job", e);
+				csvWriter.writeNext(errorLine);
+				csvWriter.writeNext(new String[] { ExceptionUtils.getFullStackTrace(e) });
 				saveJob(totalRecords, failedRecords, Status.FAILED);
 				failed(e);
 			} finally {
