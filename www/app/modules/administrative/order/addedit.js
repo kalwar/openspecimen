@@ -1,7 +1,7 @@
 
 angular.module('os.administrative.order.addedit', ['os.administrative.models', 'os.biospecimen.models'])
   .controller('OrderAddEditCtrl', function(
-    $scope, $state, $translate, order, spmnRequest, Institute,
+    $scope, $state, $translate, order, spmnRequest, exponentMinRange, Institute,
     Specimen, SpecimensHolder, Site, DistributionProtocol, DistributionOrder, Alerts, Util, SpecimenUtil) {
     
     var ignoreQtyWarning = false;
@@ -82,7 +82,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
         function(specimen) {
           return {
             specimen: specimen,
-            quantity: specimen.availableQty,
+            quantity: Util.getNumberInScientificNotation(specimen.availableQty, exponentMinRange.value),
             status: 'DISTRIBUTED_AND_CLOSED'
           }
         }

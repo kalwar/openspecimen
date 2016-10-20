@@ -76,6 +76,10 @@ angular.module('os.biospecimen.specimen',
             }
 
             return Container.reservePositionForSpecimen(cp.id, specimen);
+          },
+
+          exponentMinRange: function(SettingUtil) {
+            return SettingUtil.getSetting('common', 'exponent_min_range');
           }
         },
         controller: 'AddEditSpecimenCtrl',

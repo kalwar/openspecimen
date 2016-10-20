@@ -404,6 +404,10 @@ angular.module('os.biospecimen.participant',
             }
 
             return null;
+          },
+
+          exponentMinRange: function(SettingUtil) {
+            return SettingUtil.getSetting('common', 'exponent_min_range');
           }
         },
         parent: 'participant-root'

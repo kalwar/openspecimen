@@ -54,8 +54,7 @@
               <span>{{sr.type | osNoValue}}</span>
             </div>
             <div class="col col-xs-2">
-              <span>{{sr.initialQty | osNumberInScientificNotation}}</span>
-              <os-specimen-unit specimen-class="sr.specimenClass" type="sr.type"></os-specimen-unit>
+              <os-spmn-measure-val value="sr.initialQty" specimen="sr"></os-spmn-measure-val>
             </div>
             <div class="col col-xs-1 os-more-options"> 
               <div dropdown ng-if="view == 'list_sr'">

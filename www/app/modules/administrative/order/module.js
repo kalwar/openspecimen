@@ -65,6 +65,10 @@ angular.module('os.administrative.order',
             }
 
             return request;
+          },
+
+          exponentMinRange: function(SettingUtil) {
+            return SettingUtil.getSetting('common', 'exponent_min_range');
           }
         },
         parent: 'order-root'

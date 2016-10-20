@@ -164,7 +164,7 @@ angular.module('os.biospecimen.common.specimenprops', [])
       }
     }
   })
-  .directive("osSpmnMeasureVal", function() {
+  .directive("osSpmnMeasureVal", function(SettingUtil) {
     return {
       restrict: 'E',
 
@@ -176,10 +176,18 @@ angular.module('os.biospecimen.common.specimenprops', [])
 
       replace: true,
 
+      link: function(scope, elem, attrs) {
+        SettingUtil.getSetting('common', 'exponent_min_range').then(
+          function(exponentMinRange) {
+            scope.exponentMinRange = exponentMinRange.value;
+          }
+        );
+      },
+
       template:
         '<span class="value value-md" ng-switch="!!value || value == 0">' +
         '  <span ng-switch-when="true">' +
-        '    {{value | osNumberInScientificNotation}} ' +
+        '    {{value | osNumberInScientificNotation: exponentMinRange }} ' +
         '    <os-specimen-unit specimen-class="specimen.specimenClass" type="specimen.type"' +
         '      measure="{{measure || \'quantity\'}}">' +
         '    </os-specimen-unit>' +

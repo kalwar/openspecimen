@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
   .controller('CpSpecimensCtrl', function(
     $scope, $state, $stateParams, $timeout, $modal,
-    cp, events, specimenRequirements,
+    cp, events, specimenRequirements, exponentMinRange,
     Specimen, SpecimenRequirement, PvManager, Alerts, Util) {
 
     if (!$stateParams.eventId && !!events && events.length > 0) {
@@ -186,7 +186,7 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
           $scope.specimensCount = count;
         }
       );
-      $scope.sr.initialQty = Util.getNumberInScientificNotation($scope.sr.initialQty);
+      $scope.sr.initialQty = Util.getNumberInScientificNotation($scope.sr.initialQty, exponentMinRange.value);
       loadPvs();
     };
 

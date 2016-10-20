@@ -207,6 +207,9 @@ angular.module('os.biospecimen.cp',
             }
 
             return SpecimenRequirement.listFor(eventId);
+          },
+          exponentMinRange: function(SettingUtil) {
+            return SettingUtil.getSetting('common', 'exponent_min_range');
           }
         },
         controller: 'CpSpecimensCtrl'

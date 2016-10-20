@@ -130,4 +130,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vlonushte" id="Setting to specify exponent minimum range to display number in scientific form start from that range"> 
+    <sql>
+      call add_cfg_prop(
+        'common', 'exponent_min_range',
+        'exponent_min_range', 'exponent_min_range_desc',
+        'STRING', '1000000'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

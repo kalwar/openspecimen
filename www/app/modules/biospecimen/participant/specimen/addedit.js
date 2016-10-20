@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
     $scope, $state, cp, cpr, visit, specimen, extensionCtxt, hasDict,
-    reservedPosition, Container, PvManager, Util, ExtensionsUtil) {
+    reservedPosition, exponentMinRange, Container, PvManager, Util, ExtensionsUtil) {
 
     var autoAllocator;
 
@@ -61,9 +61,9 @@ angular.module('os.biospecimen.specimen.addedit', [])
         exObjs.push('specimen.collectionEvent', 'specimen.receivedEvent');
       }
 
-      $scope.currSpecimen.initialQty = Util.getNumberInScientificNotation($scope.currSpecimen.initialQty);
-      $scope.currSpecimen.availableQty = Util.getNumberInScientificNotation($scope.currSpecimen.availableQty);
-      $scope.currSpecimen.concentration = Util.getNumberInScientificNotation($scope.currSpecimen.concentration);
+      $scope.currSpecimen.initialQty = Util.getNumberInScientificNotation($scope.currSpecimen.initialQty, exponentMinRange.value);
+      $scope.currSpecimen.availableQty = Util.getNumberInScientificNotation($scope.currSpecimen.availableQty, exponentMinRange.value);
+      $scope.currSpecimen.concentration = Util.getNumberInScientificNotation($scope.currSpecimen.concentration, exponentMinRange.value);
 
       $scope.spmnCtx = {
         obj: {specimen: $scope.currSpecimen}, inObjs: ['specimen'], exObjs: exObjs,

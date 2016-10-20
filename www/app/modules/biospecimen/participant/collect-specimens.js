@@ -98,7 +98,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
   .controller('CollectSpecimensCtrl', 
     function(
       $scope, $translate, $state, $document, $q,
-      cpr, visit, 
+      cpr, visit, exponentMinRange, 
       Visit, Specimen, PvManager, 
       CollectSpecimensSvc, Container, Alerts, Util, SpecimenUtil) {
 
@@ -110,7 +110,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
           function(specimen) {
             specimen.existingStatus = specimen.status;
             specimen.isVirtual = specimen.showVirtual();
-            specimen.initialQty = Util.getNumberInScientificNotation(specimen.initialQty);
+            specimen.initialQty = Util.getNumberInScientificNotation(specimen.initialQty, exponentMinRange.value);
             if (specimen.status != 'Collected') {
               specimen.status = 'Collected';
               specimen.printLabel = (specimen.labelAutoPrintMode == 'ON_COLLECTION');

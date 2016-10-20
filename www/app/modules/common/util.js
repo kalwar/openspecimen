@@ -144,10 +144,15 @@ angular.module('openspecimen')
 
     function getNumberInScientificNotation(input, minRange, fractionDigits) {
       minRange = minRange || 1000000;
-      fractionDigits = fractionDigits || 6;
+      fractionDigits = fractionDigits || 2;
       
       if (angular.isNumber(input) && input > minRange) {
-        input = input.toExponential(fractionDigits);
+        input = input.toExponential(fractionDigits + 2);
+        var num = input.split("e")[0];
+        var exp = input.split("e")[1];
+        num = (num * Math.pow(10, exp % 3)).toFixed(fractionDigits);
+        exp = exp - exp % 3;
+        input = +num + "e+" + exp;
       }
 
       return input;
