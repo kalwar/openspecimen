@@ -28,6 +28,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolRegi
 import com.krishagni.catissueplus.core.biospecimen.events.ConsentDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.RegistrationDeleteCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
@@ -56,10 +57,6 @@ public class CollectionProtocolRegistrationsController {
 
 	@Autowired
 	private FormService formSvc;
-	
-	@Autowired
-	private HttpServletRequest httpReq;
-	
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
@@ -227,8 +224,18 @@ public class CollectionProtocolRegistrationsController {
 	@RequestMapping(method = RequestMethod.DELETE, value="/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public CollectionProtocolRegistrationDetail deleteRegistration(@PathVariable("id") Long cprId) {
-		ResponseEvent<CollectionProtocolRegistrationDetail> resp = cprSvc.deleteRegistration(getRegQueryReq(cprId));
+	public CollectionProtocolRegistrationDetail deleteRegistration(
+			@PathVariable("id")
+			Long cprId,
+
+			@RequestParam(value = "forceDelete", required = false, defaultValue = "false")
+			boolean forceDelete) {
+
+		RegistrationDeleteCriteria crit = new RegistrationDeleteCriteria();
+		crit.setId(cprId);
+		crit.setForceDelete(forceDelete);
+
+		ResponseEvent<CollectionProtocolRegistrationDetail> resp = cprSvc.deleteRegistration(getRequest(crit));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}

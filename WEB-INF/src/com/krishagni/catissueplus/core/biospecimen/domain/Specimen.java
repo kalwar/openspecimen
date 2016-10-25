@@ -575,10 +575,6 @@ public class Specimen extends BaseExtensionEntity {
 		return getAvailableQuantity() == null || NumUtil.greaterThanZero(getAvailableQuantity());
 	}
 
-	public void disable() {
-		disable(!isForceDelete());
-	}
-
 	public void disable(boolean checkChildSpecimens) {
 		if (getActivityStatus().equals(Status.ACTIVITY_STATUS_DISABLED.getStatus())) {
 			return;
@@ -701,7 +697,7 @@ public class Specimen extends BaseExtensionEntity {
 	}
 	
 	public void updateStatus(String activityStatus, String reason){
-		updateStatus(activityStatus, AuthUtil.getCurrentUser(), Calendar.getInstance().getTime(), reason, false);
+		updateStatus(activityStatus, AuthUtil.getCurrentUser(), Calendar.getInstance().getTime(), reason, isForceDelete());
 	}
 	
 	//
