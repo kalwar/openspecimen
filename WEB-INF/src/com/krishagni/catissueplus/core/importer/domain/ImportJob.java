@@ -15,6 +15,7 @@ public class ImportJob extends BaseEntity {
 		COMPLETED,
 		FAILED,
 		IN_PROGRESS,
+		STOPPED,
 		TXN_SIZE_EXCEEDED
 	}
 	
@@ -45,6 +46,8 @@ public class ImportJob extends BaseEntity {
 	private Date creationTime;
 	
 	private Date endTime;
+
+	private transient boolean stop;
 	
 	private Map<String, String> params = new HashMap<>();
 	
@@ -126,5 +129,13 @@ public class ImportJob extends BaseEntity {
 
 	public void setParams(Map<String, String> params) {
 		this.params = params;
+	}
+
+	public boolean isStop() {
+		return stop;
+	}
+
+	public void setStop(boolean stop) {
+		this.stop = stop;
 	}
 }

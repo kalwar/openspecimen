@@ -1,6 +1,7 @@
 
 angular.module('os.common.import.list', ['os.common.import.importjob'])
-  .controller('ImportJobsListCtrl', function($scope, importDetail, ImportJob) {
+  .controller('ImportJobsListCtrl', function($scope, $translate, importDetail,
+    ImportJob, Util, Alerts) {
 
     function init() {
       $scope.importJobs = [];
@@ -37,6 +38,31 @@ angular.module('os.common.import.list', ['os.common.import.importjob'])
         }
       );
     };
+
+    $scope.stopJob = function(importJob) {
+      var inputParams = {
+        importJob: importJob,
+        importType: 'bulk_imports.import_types.' + importJob.type,
+        objectType: importJob.name != 'extensions' ? 'bulk_imports.object_types.' + importJob.name :
+          'bulk_imports.extension_name'
+      }
+
+      Util.showConfirm({
+        ok: function () {
+          importJob.stop().then(
+            function(resp) {
+              loadJobs($scope.pagingOpts);
+              Alerts.success('bulk_imports.job_stopped', inputParams);
+            }
+          )
+        },
+
+        title: "bulk_imports.confirm_stop_job",
+        isWarning: true,
+        confirmMsg: "bulk_imports.confirm_stop_job_title",
+        input: inputParams
+      });
+    }
 
     init();
   });

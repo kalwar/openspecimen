@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -67,10 +68,12 @@ public class ImportServiceImpl implements ImportService {
 
 	private static final String CFG_MAX_TXN_SIZE = "import_max_records_per_txn";
 
+	private static Map<Long, ImportJob> runningJobs = new HashMap<>();
+
 	private ConfigurationService cfgSvc;
 
 	private ImportJobDao importJobDao;
-	
+
 	private ThreadPoolTaskExecutor taskExecutor;
 	
 	private ObjectSchemaFactory schemaFactory;
@@ -208,7 +211,8 @@ public class ImportServiceImpl implements ImportService {
 
 			ImportJob job = createImportJob(detail);
 			importJobDao.saveOrUpdate(job, true);
-			
+			runningJobs.put(job.getId(), job);
+
 			//
 			// Set up file in job's directory
 			//
@@ -220,6 +224,20 @@ public class ImportServiceImpl implements ImportService {
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);			
 		}
+	}
+
+	@Override
+	public ResponseEvent<ImportJobDetail> stopJob(RequestEvent<Long> req) {
+		ImportJob job = runningJobs.get(req.getPayload());
+		ensureAccess(job);
+
+		if (job.getStatus() != Status.IN_PROGRESS) {
+			return ResponseEvent.userError(ImportJobErrorCode.CANNOT_STOP);
+		}
+
+		job.setStop(true);
+
+		return ResponseEvent.response(ImportJobDetail.from(job));
 	}
 
 	@Override
@@ -279,23 +297,28 @@ public class ImportServiceImpl implements ImportService {
 		}
 	}
 
+
 	private int getMaxRecsPerTxn() {
 		return ConfigUtil.getInstance().getIntSetting("common", CFG_MAX_TXN_SIZE, MAX_RECS_PER_TXN);
 	}
 
 	private ImportJob getImportJob(Long jobId) {
-		User currentUser = AuthUtil.getCurrentUser();
-		
 		ImportJob job = importJobDao.getById(jobId);
-		if (job == null) {
-			throw OpenSpecimenException.userError(ImportJobErrorCode.NOT_FOUND);
-		}
+		ensureAccess(job);
 		
+		return job;
+	}
+
+	private void ensureAccess(ImportJob job) {
+		User currentUser = AuthUtil.getCurrentUser();
+
+		if (job == null) {
+			throw OpenSpecimenException.userError(ImportJobErrorCode.NOT_FOUND, job.getId());
+		}
+
 		if (!currentUser.isAdmin() && !currentUser.equals(job.getCreatedBy())) {
 			throw OpenSpecimenException.userError(ImportJobErrorCode.ACCESS_DENIED);
 		}
-		
-		return job;
 	}
 	
 	private String getDataDir() {
@@ -391,6 +414,7 @@ public class ImportServiceImpl implements ImportService {
 
 				Status status = processRows(objReader, csvWriter);
 				saveJob(totalRecords, failedRecords, status);
+				runningJobs.remove(job.getId());
 
 				if (status == Status.COMPLETED) {
 					success();
@@ -413,9 +437,9 @@ public class ImportServiceImpl implements ImportService {
 					@Override
 					public Status doInTransaction(TransactionStatus txnStatus) {
 						Status jobStatus = processRows0(objReader, csvWriter);
-						if (failedRecords > 0) {
+						if (failedRecords > 0 || jobStatus == Status.STOPPED) {
 							txnStatus.setRollbackOnly();
-							jobStatus = Status.FAILED;
+							jobStatus = jobStatus == Status.STOPPED ? Status.STOPPED : Status.FAILED;
 						}
 
 						return jobStatus;
@@ -434,8 +458,8 @@ public class ImportServiceImpl implements ImportService {
 				processSingleRowPerObj(objReader, csvWriter, importer);
 			}
 
-			Status jobStatus = Status.COMPLETED;
-			if (failedRecords > 0) {
+			Status jobStatus = job.getStatus() == Status.STOPPED ? Status.STOPPED : Status.COMPLETED;
+			if (jobStatus != Status.STOPPED && failedRecords > 0) {
 				jobStatus = Status.FAILED;
 			}
 
@@ -444,6 +468,11 @@ public class ImportServiceImpl implements ImportService {
 
 		private void processSingleRowPerObj(ObjectReader objReader, CsvWriter csvWriter, ObjectImporter<Object, Object> importer) {
 			while (true) {
+				if (job.isStop()) {
+					saveJob(totalRecords, failedRecords, Status.STOPPED);
+					break;
+				}
+
 				String errMsg = null;
 				try {
 					Object object = objReader.next();
@@ -508,6 +537,11 @@ public class ImportServiceImpl implements ImportService {
 			
 			Iterator<MergedObject> mergedObjIter = objectsMap.iterator();
 			while (mergedObjIter.hasNext()) {
+				if (job.isStop()) {
+					saveJob(totalRecords, failedRecords, Status.STOPPED);
+					break;
+				}
+
 				MergedObject mergedObj = mergedObjIter.next();
 				if (!mergedObj.isErrorneous()) {
 					String errMsg = null;
@@ -582,7 +616,7 @@ public class ImportServiceImpl implements ImportService {
 			job.setFailedRecords(failedRecords);
 			job.setStatus(status);
 			
-			if (status == Status.COMPLETED || status == Status.FAILED) {
+			if (status != Status.IN_PROGRESS) {
 				job.setEndTime(Calendar.getInstance().getTime());
 			}
 
