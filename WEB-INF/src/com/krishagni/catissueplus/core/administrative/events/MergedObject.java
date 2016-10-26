@@ -68,7 +68,7 @@ public class MergedObject implements Serializable {
 			if (isErrorneous()) {
 				row.add("FAIL");
 				row.add(errMsg);
-			} else {
+			} else if (errMsg != null) {
 				row.add("SUCCESS");
 				row.add("");
 			}

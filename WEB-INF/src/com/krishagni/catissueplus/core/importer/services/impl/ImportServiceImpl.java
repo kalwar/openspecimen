@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -228,16 +229,25 @@ public class ImportServiceImpl implements ImportService {
 
 	@Override
 	public ResponseEvent<ImportJobDetail> stopJob(RequestEvent<Long> req) {
-		ImportJob job = runningJobs.get(req.getPayload());
-		ensureAccess(job);
+		try {
+			ImportJob job = runningJobs.get(req.getPayload());
+			ensureAccess(job);
 
-		if (job.getStatus() != Status.IN_PROGRESS) {
-			return ResponseEvent.userError(ImportJobErrorCode.CANNOT_STOP);
+			if (job.getStatus() != Status.IN_PROGRESS) {
+				return ResponseEvent.userError(ImportJobErrorCode.CANNOT_STOP);
+			}
+
+			job.setStop(true);
+
+			//
+			// Wait for 5 seconds, in meanwhile job can be stop.
+			//
+			TimeUnit.SECONDS.sleep(5);
+
+			return ResponseEvent.response(ImportJobDetail.from(job));
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
 		}
-
-		job.setStop(true);
-
-		return ResponseEvent.response(ImportJobDetail.from(job));
 	}
 
 	@Override
@@ -414,7 +424,6 @@ public class ImportServiceImpl implements ImportService {
 
 				Status status = processRows(objReader, csvWriter);
 				saveJob(totalRecords, failedRecords, status);
-				runningJobs.remove(job.getId());
 
 				if (status == Status.COMPLETED) {
 					success();
@@ -426,6 +435,7 @@ public class ImportServiceImpl implements ImportService {
 				saveJob(totalRecords, failedRecords, Status.FAILED);
 				failed(e);
 			} finally {
+				runningJobs.remove(job.getId());
 				IOUtils.closeQuietly(objReader);
 				closeQuietly(csvWriter);
 			}
@@ -439,7 +449,6 @@ public class ImportServiceImpl implements ImportService {
 						Status jobStatus = processRows0(objReader, csvWriter);
 						if (failedRecords > 0 || jobStatus == Status.STOPPED) {
 							txnStatus.setRollbackOnly();
-							jobStatus = jobStatus == Status.STOPPED ? Status.STOPPED : Status.FAILED;
 						}
 
 						return jobStatus;
@@ -469,7 +478,7 @@ public class ImportServiceImpl implements ImportService {
 		private void processSingleRowPerObj(ObjectReader objReader, CsvWriter csvWriter, ObjectImporter<Object, Object> importer) {
 			while (true) {
 				if (job.isStop()) {
-					saveJob(totalRecords, failedRecords, Status.STOPPED);
+					job.setStatus(Status.STOPPED);
 					break;
 				}
 
@@ -534,11 +543,11 @@ public class ImportServiceImpl implements ImportService {
 
 				objectsMap.put(key, mergedObj);
 			}
-			
+
 			Iterator<MergedObject> mergedObjIter = objectsMap.iterator();
 			while (mergedObjIter.hasNext()) {
 				if (job.isStop()) {
-					saveJob(totalRecords, failedRecords, Status.STOPPED);
+					job.setStatus(Status.STOPPED);
 					break;
 				}
 
@@ -550,11 +559,9 @@ public class ImportServiceImpl implements ImportService {
 					} catch (OpenSpecimenException ose) {
 						errMsg = ose.getMessage();
 					}
-					
-					if (StringUtils.isNotBlank(errMsg)) {
-						mergedObj.addErrMsg(errMsg);
-						objectsMap.put(mergedObj.getKey(), mergedObj);
-					}
+
+					mergedObj.addErrMsg(StringUtils.isNotBlank(errMsg) ? errMsg : StringUtils.EMPTY);
+					objectsMap.put(mergedObj.getKey(), mergedObj);
 				}
 				
 				++totalRecords;
