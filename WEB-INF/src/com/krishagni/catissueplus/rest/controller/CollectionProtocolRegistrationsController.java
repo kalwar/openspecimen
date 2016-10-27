@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolRegistrationDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ConsentDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.RegistrationDeleteCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
@@ -231,7 +230,7 @@ public class CollectionProtocolRegistrationsController {
 			@RequestParam(value = "forceDelete", required = false, defaultValue = "false")
 			boolean forceDelete) {
 
-		RegistrationDeleteCriteria crit = new RegistrationDeleteCriteria();
+		CpEntityDeleteCriteria crit = new CpEntityDeleteCriteria();
 		crit.setId(cprId);
 		crit.setForceDelete(forceDelete);
 

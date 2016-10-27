@@ -34,11 +34,11 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantErr
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolRegistrationDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ConsentDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantRegistrationsList;
-import com.krishagni.catissueplus.core.biospecimen.events.RegistrationDeleteCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitSpecimensQueryCriteria;
@@ -158,10 +158,10 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	
 	@Override
 	@PlusTransactional
-	public ResponseEvent<CollectionProtocolRegistrationDetail> deleteRegistration(RequestEvent<RegistrationDeleteCriteria> req) {
+	public ResponseEvent<CollectionProtocolRegistrationDetail> deleteRegistration(RequestEvent<CpEntityDeleteCriteria> req) {
 		try {
-			RegistrationDeleteCriteria crit = req.getPayload();
-			CollectionProtocolRegistration cpr = getCpr(crit.getId(), crit.getCpId(), crit.getPpid());
+			CpEntityDeleteCriteria crit = req.getPayload();
+			CollectionProtocolRegistration cpr = getCpr(crit.getId(), null, crit.getCpShortTitle(), crit.getName());
 			AccessCtrlMgr.getInstance().ensureDeleteCprRights(cpr);
 			cpr.delete(!crit.isForceDelete());
 			return ResponseEvent.response(CollectionProtocolRegistrationDetail.from(cpr, false));
@@ -412,7 +412,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		
 		ose.checkAndThrow();
 		
-		if (saveParticipant) {
+		if (saveParticipant && !cpr.isForceDelete()) {
 			saveParticipant(existing, cpr);
 		}
 

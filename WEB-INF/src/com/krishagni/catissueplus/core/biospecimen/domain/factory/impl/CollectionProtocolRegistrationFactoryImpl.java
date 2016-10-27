@@ -50,6 +50,8 @@ public class CollectionProtocolRegistrationFactoryImpl implements CollectionProt
 		setPpid(detail, existing, cpr, ose);
 		setParticipant(detail, existing, cpr, ose);
 		
+		cpr.setForceDelete(detail.isForceDelete());
+
 		ose.checkAndThrow();
 		return cpr;
 	}
