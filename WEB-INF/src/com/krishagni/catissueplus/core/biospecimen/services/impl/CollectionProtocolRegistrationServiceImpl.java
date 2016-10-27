@@ -58,6 +58,7 @@ import com.krishagni.catissueplus.core.common.service.ObjectStateParamsResolver;
 import com.krishagni.catissueplus.core.common.service.impl.ConfigurationServiceImpl;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 
 public class CollectionProtocolRegistrationServiceImpl implements CollectionProtocolRegistrationService, ObjectStateParamsResolver {
@@ -181,7 +182,10 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 				return ResponseEvent.userError(CprErrorCode.NOT_FOUND);
 			}
 			
-			AccessCtrlMgr.getInstance().ensureReadCprRights(existing);
+			boolean isPhiAccess = AccessCtrlMgr.getInstance().ensureReadCprRights(existing);
+			if (!isPhiAccess) {
+				return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
+			}
 			
 			String fileName = existing.getSignedConsentDocumentName();
 			if (StringUtils.isBlank(fileName)) {
@@ -283,8 +287,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		try {
 			RegistrationQueryCriteria crit = req.getPayload();
 			CollectionProtocolRegistration cpr = getCpr(crit.getCprId(), crit.getCpId(), crit.getPpid());
-			AccessCtrlMgr.getInstance().ensureReadCprRights(cpr);
-			return ResponseEvent.response(ConsentDetail.fromCpr(cpr));
+			boolean allowPhiAccess = AccessCtrlMgr.getInstance().ensureReadCprRights(cpr);
+			return ResponseEvent.response(ConsentDetail.fromCpr(cpr, !allowPhiAccess));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -300,11 +304,11 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 			CollectionProtocolRegistration existing = getCpr(consentDetail.getCprId(),
 				consentDetail.getCpId(), consentDetail.getCpShortTitle(), consentDetail.getPpid());
-			AccessCtrlMgr.getInstance().ensureUpdateCprRights(existing);
+			boolean allowPhiAccess = AccessCtrlMgr.getInstance().ensureUpdateCprRights(existing);
 			
 			ConsentResponses consentResponses = consentResponsesFactory.createConsentResponses(existing, consentDetail);
 			existing.updateConsents(consentResponses);
-			return ResponseEvent.response(ConsentDetail.fromCpr(existing));
+			return ResponseEvent.response(ConsentDetail.fromCpr(existing, !allowPhiAccess));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
