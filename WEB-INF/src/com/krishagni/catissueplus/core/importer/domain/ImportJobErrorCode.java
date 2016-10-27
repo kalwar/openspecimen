@@ -15,7 +15,7 @@ public enum ImportJobErrorCode implements ErrorCode {
 	
 	RECORD_PARSE_ERROR,
 
-	CANNOT_STOP;
+	NOT_IN_PROGRESS;
 
 	@Override
 	public String code() {		

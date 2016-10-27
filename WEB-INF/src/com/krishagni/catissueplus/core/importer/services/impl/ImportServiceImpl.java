@@ -198,6 +198,7 @@ public class ImportServiceImpl implements ImportService {
 	@Override
 	@PlusTransactional
 	public ResponseEvent<ImportJobDetail> importObjects(RequestEvent<ImportDetail> req) {
+		ImportJob job = null;
 		try {
 			ImportDetail detail = req.getPayload();
 			String inputFile = getFilePath(detail.getInputFileId());
@@ -210,19 +211,23 @@ public class ImportServiceImpl implements ImportService {
 				return ResponseEvent.response(ImportJobDetail.txnSizeExceeded(inputRecordsCnt));
 			}
 
-			ImportJob job = createImportJob(detail);
+			job = createImportJob(detail);
 			importJobDao.saveOrUpdate(job, true);
-			runningJobs.put(job.getId(), job);
 
 			//
 			// Set up file in job's directory
 			//
 			createJobDir(job.getId());
 			moveToJobDir(inputFile, job.getId());
-			
+
+			runningJobs.put(job.getId(), job);
 			taskExecutor.submit(new ImporterTask(AuthUtil.getAuth(), job, detail.getListener(), detail.isAtomic()));
 			return ResponseEvent.response(ImportJobDetail.from(job));
 		} catch (Exception e) {
+			if (job != null && job.getId() != null) {
+				runningJobs.remove(job.getId());
+			}
+
 			return ResponseEvent.serverError(e);			
 		}
 	}
@@ -231,18 +236,17 @@ public class ImportServiceImpl implements ImportService {
 	public ResponseEvent<ImportJobDetail> stopJob(RequestEvent<Long> req) {
 		try {
 			ImportJob job = runningJobs.get(req.getPayload());
-			ensureAccess(job);
-
-			if (job.getStatus() != Status.IN_PROGRESS) {
-				return ResponseEvent.userError(ImportJobErrorCode.CANNOT_STOP);
+			if (job == null || job.isInProgress()) {
+				return ResponseEvent.userError(ImportJobErrorCode.NOT_IN_PROGRESS, req.getPayload());
 			}
 
-			job.setStop(true);
-
-			//
-			// Wait for 5 seconds, in meanwhile job can be stop.
-			//
-			TimeUnit.SECONDS.sleep(5);
+			ensureAccess(job).stop();
+			for (int i = 0; i < 5; ++i) {
+				TimeUnit.SECONDS.sleep(1);
+				if (!job.isInProgress()) {
+					break;
+				}
+			}
 
 			return ResponseEvent.response(ImportJobDetail.from(job));
 		} catch (Exception e) {
@@ -307,28 +311,26 @@ public class ImportServiceImpl implements ImportService {
 		}
 	}
 
-
 	private int getMaxRecsPerTxn() {
 		return ConfigUtil.getInstance().getIntSetting("common", CFG_MAX_TXN_SIZE, MAX_RECS_PER_TXN);
 	}
 
 	private ImportJob getImportJob(Long jobId) {
 		ImportJob job = importJobDao.getById(jobId);
-		ensureAccess(job);
-		
-		return job;
-	}
-
-	private void ensureAccess(ImportJob job) {
-		User currentUser = AuthUtil.getCurrentUser();
-
 		if (job == null) {
-			throw OpenSpecimenException.userError(ImportJobErrorCode.NOT_FOUND, job.getId());
+			throw OpenSpecimenException.userError(ImportJobErrorCode.NOT_FOUND, jobId);
 		}
 
+		return ensureAccess(job);
+	}
+
+	private ImportJob ensureAccess(ImportJob job) {
+		User currentUser = AuthUtil.getCurrentUser();
 		if (!currentUser.isAdmin() && !currentUser.equals(job.getCreatedBy())) {
 			throw OpenSpecimenException.userError(ImportJobErrorCode.ACCESS_DENIED);
 		}
+
+		return job;
 	}
 	
 	private String getDataDir() {
@@ -447,7 +449,7 @@ public class ImportServiceImpl implements ImportService {
 					@Override
 					public Status doInTransaction(TransactionStatus txnStatus) {
 						Status jobStatus = processRows0(objReader, csvWriter);
-						if (failedRecords > 0 || jobStatus == Status.STOPPED) {
+						if (jobStatus == Status.FAILED || jobStatus == Status.STOPPED) {
 							txnStatus.setRollbackOnly();
 						}
 
@@ -460,28 +462,20 @@ public class ImportServiceImpl implements ImportService {
 		}
 
 		private Status processRows0(ObjectReader objReader, CsvWriter csvWriter) {
+			boolean stopped;
 			ObjectImporter<Object, Object> importer = importerFactory.getImporter(job.getName());
 			if (job.getCsvtype() == CsvType.MULTIPLE_ROWS_PER_OBJ) {
-				processMultipleRowsPerObj(objReader, csvWriter, importer);
+				stopped = processMultipleRowsPerObj(objReader, csvWriter, importer);
 			} else {
-				processSingleRowPerObj(objReader, csvWriter, importer);
+				stopped = processSingleRowPerObj(objReader, csvWriter, importer);
 			}
 
-			Status jobStatus = job.getStatus() == Status.STOPPED ? Status.STOPPED : Status.COMPLETED;
-			if (jobStatus != Status.STOPPED && failedRecords > 0) {
-				jobStatus = Status.FAILED;
-			}
-
-			return jobStatus;
+			return stopped ? Status.STOPPED : (failedRecords > 0) ? Status.FAILED : Status.COMPLETED;
 		}
 
-		private void processSingleRowPerObj(ObjectReader objReader, CsvWriter csvWriter, ObjectImporter<Object, Object> importer) {
-			while (true) {
-				if (job.isStop()) {
-					job.setStatus(Status.STOPPED);
-					break;
-				}
-
+		private boolean processSingleRowPerObj(ObjectReader objReader, CsvWriter csvWriter, ObjectImporter<Object, Object> importer) {
+			boolean stopped = false;
+			while (!job.isAskedToStop() || !(stopped = true)) {
 				String errMsg = null;
 				try {
 					Object object = objReader.next();
@@ -511,9 +505,11 @@ public class ImportServiceImpl implements ImportService {
 					saveJob(totalRecords, failedRecords, Status.IN_PROGRESS);
 				}
 			}
+
+			return stopped;
 		}
 
-		private void processMultipleRowsPerObj(ObjectReader objReader, CsvWriter csvWriter, ObjectImporter<Object, Object> importer) {
+		private boolean processMultipleRowsPerObj(ObjectReader objReader, CsvWriter csvWriter, ObjectImporter<Object, Object> importer) {
 			LinkedEhCacheMap<String, MergedObject> objectsMap =  new LinkedEhCacheMap<String, MergedObject>();
 			
 			while (true) {
@@ -544,13 +540,9 @@ public class ImportServiceImpl implements ImportService {
 				objectsMap.put(key, mergedObj);
 			}
 
+			boolean stopped = false;
 			Iterator<MergedObject> mergedObjIter = objectsMap.iterator();
-			while (mergedObjIter.hasNext()) {
-				if (job.isStop()) {
-					job.setStatus(Status.STOPPED);
-					break;
-				}
-
+			while (mergedObjIter.hasNext() && (!job.isAskedToStop() || !(stopped = true))) {
 				MergedObject mergedObj = mergedObjIter.next();
 				if (!mergedObj.isErrorneous()) {
 					String errMsg = null;
@@ -560,7 +552,11 @@ public class ImportServiceImpl implements ImportService {
 						errMsg = ose.getMessage();
 					}
 
-					mergedObj.addErrMsg(StringUtils.isNotBlank(errMsg) ? errMsg : StringUtils.EMPTY);
+					if (StringUtils.isNotBlank(errMsg)) {
+						mergedObj.addErrMsg(errMsg);
+					}
+
+					mergedObj.setProcessed(true);
 					objectsMap.put(mergedObj.getKey(), mergedObj);
 				}
 				
@@ -581,6 +577,7 @@ public class ImportServiceImpl implements ImportService {
 			}
 
 			objectsMap.clear();
+			return stopped;
 		}
 		
 		private String importObject(final ObjectImporter<Object, Object> importer, Object object, Map<String, String> params) {

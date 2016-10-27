@@ -39,7 +39,6 @@
           </th>
           <th class="col os-col-10">
             <span translate="bulk_imports.status">Status</span>
-            <span>&nbsp;</span>
           </th>
           <th class="col os-col-5">
             <span>&nbsp;</span>
@@ -73,19 +72,19 @@
           <td class="col os-col-10">
             <span>{{importJob.failedRecords}}</span>
           </td>
-          <td class="col os-col-10 clearfix">
+          <td class="col os-col-10">
             <span translate="bulk_imports.status_{{importJob.status}}"></span>
           </td>
-          <td class="col os-col-5 clearfix">
+          <td class="col os-col-5">
             <div class="btn-group btn-group-xs">
               <button type="button" class="btn btn-default">
-                <a class="pull-right" href="{{importJob.outputFileUrl}}" target="_blank">
+                <a href="{{importJob.outputFileUrl}}" target="_blank">
                   <span class="fa fa-download"></span>
                 </a>
               </button>
               <button ng-if="importJob.status == 'IN_PROGRESS'" type="button" class="btn btn-default"
                 ng-click="stopJob(importJob)">
-                <i class="fa fa-stop-circle-o"></i>
+                <span class="fa fa-stop-circle-o"></span>
               </button>
             </div>
           </td>

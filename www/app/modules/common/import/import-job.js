@@ -23,7 +23,7 @@ angular.module('os.common.import.importjob', ['os.common.models'])
     ImportJob.prototype.stop = function() {
       return $http.put(ImportJob.url() + this.id + '/stop').then(
         function(resp) {
-          return resp.data;
+          return new ImportJob(resp.data);
         }
       );
     }
