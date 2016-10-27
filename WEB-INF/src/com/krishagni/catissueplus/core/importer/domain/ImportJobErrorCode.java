@@ -15,7 +15,9 @@ public enum ImportJobErrorCode implements ErrorCode {
 	
 	RECORD_PARSE_ERROR,
 
-	NOT_IN_PROGRESS;
+	NOT_IN_PROGRESS,
+
+	INVALID_DATE_FORMAT;
 
 	@Override
 	public String code() {		

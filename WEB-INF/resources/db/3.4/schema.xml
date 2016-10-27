@@ -146,4 +146,10 @@
       <column name="EXTRACT_SPR_TEXT" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vgaikwad" id="Bulk import input file date format">
+    <addColumn tableName="OS_BULK_IMPORT_JOBS">
+      <column name="DATE_FORMAT" type="${text.type}(16)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

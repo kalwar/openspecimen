@@ -1,7 +1,7 @@
 
 angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
   .controller('ImportObjectCtrl', function(
-    $scope, $sce, $state, importDetail,
+    $rootScope, $scope, $sce, $state, importDetail,
     Form, ImportJob, Alerts, Util, SettingUtil) {
 
     var maxTxnSize = undefined;
@@ -12,6 +12,7 @@ angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
         objectType: importDetail.objectType,
         importType: importDetail.importType || 'CREATE',
         csvType: importDetail.csvType || 'SINGLE_ROW_PER_OBJ',
+        dateFormat: $rootScope.global.shortDateFmt,
         inputFileId: undefined,
         objectParams: importDetail.objectParams || {}
       });

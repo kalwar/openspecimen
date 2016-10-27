@@ -1504,6 +1504,7 @@
     "object_type": "Object Type",
     "create": "Create",
     "update": "Update",
+    "date_format": "Date Format",
     "status_COMPLETED": "Completed",
     "status_FAILED": "Failed",
     "status_IN_PROGRESS": "In Progress",
@@ -1549,7 +1550,7 @@
       "CREATE": "Create",
       "UPDATE": "Update"
     },
-    
+
     "extension_name": "{{params.formName}} ({{params.entityType}})"
   },
 

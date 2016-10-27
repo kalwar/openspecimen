@@ -11,7 +11,9 @@ public class ImportDetail {
 	private String importType;
 	
 	private String csvType;
-	
+
+	private String dateFormat;
+
 	private String inputFileId;
 
 	private ImportListener listener;
@@ -42,6 +44,14 @@ public class ImportDetail {
 
 	public void setCsvType(String csvType) {
 		this.csvType = csvType;
+	}
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
 	}
 
 	public String getInputFileId() {
