@@ -42,6 +42,7 @@ import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.CsvFileReader;
 import com.krishagni.catissueplus.core.common.util.CsvFileWriter;
 import com.krishagni.catissueplus.core.common.util.CsvWriter;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.importer.domain.ImportJob;
 import com.krishagni.catissueplus.core.importer.domain.ImportJob.CsvType;
 import com.krishagni.catissueplus.core.importer.domain.ImportJob.Status;
@@ -69,8 +70,6 @@ public class ImportServiceImpl implements ImportService {
 	private static final int MAX_RECS_PER_TXN = 10000;
 
 	private static final String CFG_MAX_TXN_SIZE = "import_max_records_per_txn";
-
-	private static final String DATE_FORMAT = "date_format";
 
 	private static Map<Long, ImportJob> runningJobs = new HashMap<>();
 
@@ -385,7 +384,7 @@ public class ImportServiceImpl implements ImportService {
 
 		setImportType(detail, job, ose);
 		setCsvType(detail, job, ose);
-		setDateFormat(detail, job, ose);
+		setDateAndTimeFormat(detail, job, ose);
 		ose.checkAndThrow();
 
 		return job;		
@@ -401,18 +400,29 @@ public class ImportServiceImpl implements ImportService {
 		job.setCsvtype(StringUtils.isBlank(csvType) ? CsvType.SINGLE_ROW_PER_OBJ : CsvType.valueOf(csvType));
 	}
 
-	private void setDateFormat(ImportDetail detail, ImportJob job, OpenSpecimenException ose) {
+	private void setDateAndTimeFormat(ImportDetail detail, ImportJob job, OpenSpecimenException ose) {
 		String dateFormat = detail.getDateFormat();
 		if (StringUtils.isBlank(dateFormat)) {
 			dateFormat = ConfigUtil.getInstance().getDeDateFmt();
-		} else {
-			try {
-				SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-			} catch (IllegalArgumentException e) {
+		} else if (!Utility.isValidDateFormat(dateFormat)) {
 				ose.addError(ImportJobErrorCode.INVALID_DATE_FORMAT, dateFormat);
+				return;
+		}
+
+		job.setDateFormat(dateFormat);
+
+		String timeFormat = detail.getTimeFormat();
+		if (StringUtils.isBlank(timeFormat)) {
+			timeFormat = ConfigUtil.getInstance().getTimeFmt();
+		} else {
+			String dateTimeFormat =  dateFormat + " " + timeFormat;
+			if (!Utility.isValidDateFormat(dateTimeFormat)) {
+				ose.addError(ImportJobErrorCode.INVALID_TIME_FORMAT, timeFormat);
+				return;
 			}
 		}
-		job.setDateFormat(dateFormat);
+
+		job.setTimeFormat(timeFormat);
 	}
 
 	private class ImporterTask implements Runnable {
@@ -445,10 +455,7 @@ public class ImportServiceImpl implements ImportService {
 				ObjectSchema schema = schemaFactory.getSchema(job.getName(), job.getParams());
 				String filePath = getJobDir(job.getId()) + File.separator + "input.csv";
 				csvWriter = getOutputCsvWriter(job);
-				objReader = new ObjectReader(
-						filePath, schema,
-						job.getDateFormat(),
-						ConfigUtil.getInstance().getTimeFmt());
+				objReader = new ObjectReader(filePath, schema, job.getDateFormat(), job.getTimeFormat());
 
 				List<String> columnNames = objReader.getCsvColumnNames();
 				columnNames.add("OS_IMPORT_STATUS");

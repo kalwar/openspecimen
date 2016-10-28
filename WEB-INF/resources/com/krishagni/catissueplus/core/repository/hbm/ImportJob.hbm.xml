@@ -24,6 +24,8 @@
     </property>
 
     <property name="dateFormat" column="DATE_FORMAT"/>
+
+    <property name="timeFormat" column="TIME_FORMAT"/>
  
     <property name="status" column="STATUS" not-null="true">
       <type name="org.hibernate.type.EnumType">

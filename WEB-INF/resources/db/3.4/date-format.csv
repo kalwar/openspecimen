@@ -1,4 +1,4 @@
-IDENTIFIER,value,PUBLIC_ID
+IDENTIFIER,VALUE,PUBLIC_ID
 getNextPvId(),MM/dd/yyyy,date_format
 getNextPvId(),MM-dd-yyyy,date_format
 getNextPvId(),MM.dd.yyyy,date_format

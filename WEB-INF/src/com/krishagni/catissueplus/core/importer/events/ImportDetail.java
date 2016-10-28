@@ -14,6 +14,8 @@ public class ImportDetail {
 
 	private String dateFormat;
 
+	private String timeFormat;
+
 	private String inputFileId;
 
 	private ImportListener listener;
@@ -52,6 +54,14 @@ public class ImportDetail {
 
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
+	}
+
+	public String getTimeFormat() {
+		return timeFormat;
+	}
+
+	public void setTimeFormat(String timeFormat) {
+		this.timeFormat = timeFormat;
 	}
 
 	public String getInputFileId() {

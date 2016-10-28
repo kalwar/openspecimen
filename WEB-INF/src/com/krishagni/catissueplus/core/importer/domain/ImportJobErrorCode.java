@@ -17,7 +17,9 @@ public enum ImportJobErrorCode implements ErrorCode {
 
 	NOT_IN_PROGRESS,
 
-	INVALID_DATE_FORMAT;
+	INVALID_DATE_FORMAT,
+
+	INVALID_TIME_FORMAT;
 
 	@Override
 	public String code() {		

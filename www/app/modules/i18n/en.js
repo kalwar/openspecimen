@@ -1505,6 +1505,7 @@
     "create": "Create",
     "update": "Update",
     "date_format": "Date Format",
+    "time_format": "Time Format",
     "status_COMPLETED": "Completed",
     "status_FAILED": "Failed",
     "status_IN_PROGRESS": "In Progress",

@@ -13,6 +13,7 @@ angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
         importType: importDetail.importType || 'CREATE',
         csvType: importDetail.csvType || 'SINGLE_ROW_PER_OBJ',
         dateFormat: $rootScope.global.shortDateFmt,
+        timeFormat: $rootScope.global.timeFmt,
         inputFileId: undefined,
         objectParams: importDetail.objectParams || {}
       });
