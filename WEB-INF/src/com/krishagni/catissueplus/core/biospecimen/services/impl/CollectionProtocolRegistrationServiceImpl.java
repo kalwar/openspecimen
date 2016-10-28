@@ -182,8 +182,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 				return ResponseEvent.userError(CprErrorCode.NOT_FOUND);
 			}
 			
-			boolean isPhiAccess = AccessCtrlMgr.getInstance().ensureReadCprRights(existing);
-			if (!isPhiAccess) {
+			boolean hasPhiAccess = AccessCtrlMgr.getInstance().ensureReadCprRights(existing);
+			if (!hasPhiAccess) {
 				return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
 			}
 			
@@ -287,8 +287,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		try {
 			RegistrationQueryCriteria crit = req.getPayload();
 			CollectionProtocolRegistration cpr = getCpr(crit.getCprId(), crit.getCpId(), crit.getPpid());
-			boolean allowPhiAccess = AccessCtrlMgr.getInstance().ensureReadCprRights(cpr);
-			return ResponseEvent.response(ConsentDetail.fromCpr(cpr, !allowPhiAccess));
+			boolean hasPhiAccess = AccessCtrlMgr.getInstance().ensureReadCprRights(cpr);
+			return ResponseEvent.response(ConsentDetail.fromCpr(cpr, !hasPhiAccess));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -304,11 +304,11 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 			CollectionProtocolRegistration existing = getCpr(consentDetail.getCprId(),
 				consentDetail.getCpId(), consentDetail.getCpShortTitle(), consentDetail.getPpid());
-			boolean allowPhiAccess = AccessCtrlMgr.getInstance().ensureUpdateCprRights(existing);
+			boolean hasPhiAccess = AccessCtrlMgr.getInstance().ensureUpdateCprRights(existing);
 			
 			ConsentResponses consentResponses = consentResponsesFactory.createConsentResponses(existing, consentDetail);
 			existing.updateConsents(consentResponses);
-			return ResponseEvent.response(ConsentDetail.fromCpr(existing, !allowPhiAccess));
+			return ResponseEvent.response(ConsentDetail.fromCpr(existing, !hasPhiAccess));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {

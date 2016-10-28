@@ -1,13 +1,11 @@
 
 angular.module('os.biospecimen.participant.consents', [])
-  .controller('ParticipantConsentsCtrl', function($scope, $sce, cpr, consent,
-    PvManager,  DeleteUtil, AuthorizationService) {
+  .controller('ParticipantConsentsCtrl', function($scope, $sce, cpr, consent, PvManager,  DeleteUtil) {
 
     function init() {
       $scope.consentFormUploader = {};
       $scope.consentFormUrl = $sce.trustAsResourceUrl(cpr.getSignedConsentFormUrl());
       $scope.consent = consent;
-      $scope.hasPhiAccess = AuthorizationService.hasPhiAccess();
       $scope.uploadMode = false;
       $scope.editMode = false;
       $scope.consentExists = $scope.consent.consentTierResponses.length > 0;
