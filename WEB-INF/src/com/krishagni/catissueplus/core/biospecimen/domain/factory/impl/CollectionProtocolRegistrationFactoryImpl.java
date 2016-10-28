@@ -43,14 +43,13 @@ public class CollectionProtocolRegistrationFactoryImpl implements CollectionProt
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 		
 		CollectionProtocolRegistration cpr = new CollectionProtocolRegistration();
+		cpr.setForceDelete(detail.isForceDelete());
 		setBarcode(detail, existing, cpr, ose);
 		setRegDate(detail, existing, cpr, ose);
 		setActivityStatus(detail, existing, cpr, ose);
 		setCollectionProtocol(detail, existing, cpr, ose);
 		setPpid(detail, existing, cpr, ose);
 		setParticipant(detail, existing, cpr, ose);
-		
-		cpr.setForceDelete(detail.isForceDelete());
 
 		ose.checkAndThrow();
 		return cpr;

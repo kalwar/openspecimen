@@ -575,6 +575,10 @@ public class Specimen extends BaseExtensionEntity {
 		return getAvailableQuantity() == null || NumUtil.greaterThanZero(getAvailableQuantity());
 	}
 
+	public void disable() {
+		disable(!isForceDelete());
+	}
+
 	public void disable(boolean checkChildSpecimens) {
 		if (getActivityStatus().equals(Status.ACTIVITY_STATUS_DISABLED.getStatus())) {
 			return;
