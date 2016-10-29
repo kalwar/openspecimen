@@ -72,21 +72,15 @@
       </div>
 
       <div class="form-group">
-        <label class="col-xs-3 control-label" translate="bulk_imports.date_format">
-          Date Format
+        <label class="col-xs-3 control-label" translate="bulk_imports.date_time_format">
+          Date and Time Format
         </label>
-        <div class="col-xs-6">
+        <div class="col-xs-4">
           <os-pvs name="dateFormat" ng-model="importJob.dateFormat" attribute="date_format"
             placeholder="{{'bulk_imports.date_format' | translate}}">
           </os-pvs>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label class="col-xs-3 control-label" translate="bulk_imports.time_format">
-          Time Format
-        </label>
-        <div class="col-xs-6">
+        <div class="col-xs-2">
           <os-pvs name="timeFormat" ng-model="importJob.timeFormat" attribute="time_format"
             placeholder="{{'bulk_imports.time_format' | translate}}">
           </os-pvs>

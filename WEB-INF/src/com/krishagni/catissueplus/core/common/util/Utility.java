@@ -570,7 +570,7 @@ public class Utility {
 	public static boolean isValidDateFormat(String format) {
 		boolean isValid = true;
 		try {
-			SimpleDateFormat sdf = new SimpleDateFormat(format);
+			new SimpleDateFormat(format);
 		} catch (IllegalArgumentException e) {
 			isValid = false;
 		}

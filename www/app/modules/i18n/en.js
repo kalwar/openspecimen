@@ -1506,6 +1506,7 @@
     "update": "Update",
     "date_format": "Date Format",
     "time_format": "Time Format",
+    "date_time_format": "Date and Time Format",
     "status_COMPLETED": "Completed",
     "status_FAILED": "Failed",
     "status_IN_PROGRESS": "In Progress",

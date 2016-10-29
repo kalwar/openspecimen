@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -62,6 +61,7 @@ import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporterFactory;
 import com.krishagni.catissueplus.core.importer.services.ObjectReader;
 import com.krishagni.catissueplus.core.importer.services.ObjectSchemaFactory;
+
 import edu.common.dynamicextensions.query.cachestore.LinkedEhCacheMap;
 
 public class ImportServiceImpl implements ImportService {
@@ -375,6 +375,7 @@ public class ImportServiceImpl implements ImportService {
 	
 	private ImportJob createImportJob(ImportDetail detail) { // TODO: ensure checks are done
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
+
 		ImportJob job = new ImportJob();
 		job.setCreatedBy(AuthUtil.getCurrentUser());
 		job.setCreationTime(Calendar.getInstance().getTime());
@@ -405,8 +406,8 @@ public class ImportServiceImpl implements ImportService {
 		if (StringUtils.isBlank(dateFormat)) {
 			dateFormat = ConfigUtil.getInstance().getDeDateFmt();
 		} else if (!Utility.isValidDateFormat(dateFormat)) {
-				ose.addError(ImportJobErrorCode.INVALID_DATE_FORMAT, dateFormat);
-				return;
+			ose.addError(ImportJobErrorCode.INVALID_DATE_FORMAT, dateFormat);
+			return;
 		}
 
 		job.setDateFormat(dateFormat);
