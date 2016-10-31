@@ -596,6 +596,7 @@
     "multiple_cp_specimens": "Specimen labels with multiple protocols",
     "select_protocol": "Following specimen labels are present in multiple protocols. Please select the right protocol before proceeding",
     "specimen_not_found": "Specimen {{label}} does not exist",
+    "specimen_not_found_at_send_site": "Specimen {{label}} does not exist or not stored at {{sendingSite}} site",
     "hide_pending":"Hide Pending",
     "show_pending": "Show Pending",
 

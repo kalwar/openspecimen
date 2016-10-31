@@ -200,10 +200,16 @@ angular.module('os.biospecimen.specimen')
       );
     }
 
-    function getSpecimens(labels) {
-      return Specimen.listByLabels(labels).then(
+    function getSpecimens(labels, filterOpts, errorCode, errorOpts) {
+      if (!filterOpts) {
+        filterOpts = {label: labels};
+      } else {
+        filterOpts.label = labels;
+      }
+
+      return Specimen.query(filterOpts).then(
         function(specimens) {
-          return resolveSpecimens(labels, specimens);
+          return resolveSpecimens(labels, specimens, errorCode, errorOpts);
         }
       );
     }
@@ -214,7 +220,7 @@ angular.module('os.biospecimen.specimen')
       return deferred.promise;
     }
 
-    function resolveSpecimens(labels, specimens) {
+    function resolveSpecimens(labels, specimens, errorCode, errorOpts) {
       var specimensMap = {};
       angular.forEach(specimens, function(spmn) {
         if (!specimensMap[spmn.label]) {
@@ -249,7 +255,7 @@ angular.module('os.biospecimen.specimen')
       });
 
       if (notFoundLabels.length != 0) {
-        Alerts.error('specimens.specimen_not_found', {label: notFoundLabels.join(', ')});
+        showCustomError(notFoundLabels, errorCode, errorOpts)
         return deferred(undefined);
       }
 
@@ -279,6 +285,20 @@ angular.module('os.biospecimen.specimen')
           );
         }
       );
+    }
+
+    function showCustomError(notFoundLabels, errorCode, errorOpts) {
+      if (!errorCode) {
+        Alerts.error('specimens.specimen_not_found', {label: notFoundLabels.join(', ')});
+      } else {
+        if (!errorOpts) {
+          errorOpts = {label: notFoundLabels.join(', ')};
+        } else {
+          errorOpts.label = notFoundLabels.join(', ');
+        }
+
+        Alerts.error(errorCode, errorOpts);
+      }
     }
 
     function showInsufficientQtyWarning(opts) {

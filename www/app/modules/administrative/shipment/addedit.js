@@ -181,7 +181,10 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
     }
 
     $scope.addSpecimens = function(labels) {
-      return SpecimenUtil.getSpecimens(labels).then(
+      var locationFilter = {storageLocationSite: $scope.shipment.sendingSite};
+      var errorCode = 'specimens.specimen_not_found_at_send_site';
+      var errorOpts = {sendingSite: $scope.shipment.sendingSite};
+      return SpecimenUtil.getSpecimens(labels, locationFilter, errorCode, errorOpts).then(
         function (specimens) {
           if (!specimens) {
             return false;

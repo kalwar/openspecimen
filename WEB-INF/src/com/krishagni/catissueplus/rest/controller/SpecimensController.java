@@ -28,6 +28,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenStatusDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitSpecimensQueryCriteria;
+import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenService;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -94,6 +95,9 @@ public class SpecimensController {
 			
 			@RequestParam(value = "visitId", required = false) 
 			Long visitId,
+
+			@RequestParam(value = "storageLocationSite", required = false)
+			String storageLocationSite,
 			
 			@RequestParam(value = "id", required = false)
 			List<Long> ids,
@@ -115,7 +119,11 @@ public class SpecimensController {
 			resp.throwErrorIfUnsuccessful();
 			return resp.getPayload();
 		} else if (CollectionUtils.isNotEmpty(labels)) {
-			ResponseEvent<List<SpecimenInfo>> resp = specimenSvc.getSpecimens(getRequest(labels));
+			SpecimenListCriteria crit = new SpecimenListCriteria()
+				.labels(labels)
+				.storageLocationSite(storageLocationSite);
+
+			ResponseEvent<List<SpecimenInfo>> resp = specimenSvc.getSpecimens(getRequest(crit));
 			resp.throwErrorIfUnsuccessful();
 			return resp.getPayload();
 		} else if (cpId != null) {
