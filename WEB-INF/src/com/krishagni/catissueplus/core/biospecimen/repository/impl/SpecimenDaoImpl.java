@@ -243,6 +243,7 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean areDuplicateLabelsPresent() {
 		List<Object[]> rows = getSessionFactory().getCurrentSession()
@@ -252,18 +253,13 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		return rows.size() > 0;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Map<Long, Long> getSpecimenStorageSite(Set<Long> specimenIds) {
 		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_STORAGE_SITE)
 			.setParameterList("specimenIds", specimenIds)
 			.list();
-
-		Map<Long, Long> spmnSiteMap = new HashMap<>();
-		for (Object[] row : rows) {
-			spmnSiteMap.put((Long) row[0], (Long) row[1]);
-		}
-
-		return spmnSiteMap;
+		return rows.stream().collect(Collectors.toMap(row -> (Long)row[0], row -> (Long)row[1]));
 	}
 
 	private void addIdsCond(Criteria query, List<Long> ids) {
@@ -404,7 +400,10 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		query.createAlias("specimen.position", "pos", JoinType.LEFT_OUTER_JOIN)
 			.createAlias("pos.container", "cont", JoinType.LEFT_OUTER_JOIN)
 			.createAlias("cont.site", "contSite", JoinType.LEFT_OUTER_JOIN)
-			.add(Restrictions.or(Restrictions.isNull("pos.id"), Restrictions.eq("contSite.name", crit.storageLocationSite())));
+			.add(Restrictions.or(
+				Restrictions.isNull("pos.id"),
+				Restrictions.eq("contSite.name", crit.storageLocationSite())
+			));
 	}
 
 	@SuppressWarnings("unchecked")
