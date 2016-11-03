@@ -1734,6 +1734,7 @@
     "details": "Shipment Details",
     "no_specimens_in_list": "No specimens in shipment. Add at least one specimen",
     "enter_specimen_label": "To add specimens to shipment, enter labels separated by a comma, tab or newline and click add",
+    "specimen_multi_site": "Can't ship specimens from multiple storage sites",
 
     "filters": "Filters",
     "report_gen_initiated": "Generating shipment report...",

@@ -17,6 +17,7 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
       if (!!spmnRequest) {
         shipment.shipmentItems = getShipmentItemsFromReq(spmnRequest.items, shipment.shipmentItems);
       } else if (!shipment.id && angular.isArray(SpecimensHolder.getSpecimens())) {
+        validateSpecimenSites(SpecimensHolder.getSpecimens());
         shipment.shipmentItems = getShipmentItems(SpecimensHolder.getSpecimens());
         SpecimensHolder.setSpecimens(null);
       }
@@ -27,6 +28,23 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
 
       loadInstitutes();
       setUserAndSiteList(shipment);
+    }
+
+    function validateSpecimenSites(specimens) {
+      var sites = new Set();
+      angular.forEach(specimens, function(spmn) {
+        sites.add(spmn.storageSite);
+      });
+
+      //virtual specimens have null site and are allowed in any shipment.
+      sites.delete(null);
+
+      if (sites.size > 1) {
+        Alerts.error('shipments.specimen_multi_site');
+        $scope.back();
+      } else {
+        $scope.shipment.sendingSite = sites.values().next().value;
+      }
     }
     
     function loadInstitutes () {
