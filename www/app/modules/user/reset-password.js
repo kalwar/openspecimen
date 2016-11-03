@@ -9,7 +9,8 @@ angular.module('openspecimen')
 
       $scope.response = {};
       $scope.passwordDetail = {resetPasswordToken: $location.search().token};
-      loadPasswordSetting();
+      $scope.passwdCtx = {};
+      loadPasswdRules();
     }
 
     function onResetPassword(result) {
@@ -19,16 +20,16 @@ angular.module('openspecimen')
       }
     }
 
-    function loadPasswordSetting() {
+    function loadPasswdRules() {
       SettingUtil.getSetting("auth", "password_pattern").then(
         function(setting) {
-          $scope.passwordPattern = setting.value;
+          $scope.passwdCtx.pattern = setting.value;
         }
       );
 
       SettingUtil.getSetting("auth", "password_rule").then(
         function(setting) {
-          $scope.passwordRule = setting.value;
+          $scope.passwdCtx.rule = setting.value;
         }
       );
     }

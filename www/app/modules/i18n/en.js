@@ -1887,8 +1887,8 @@
         "password_pattern_desc": "Regular expression specifying complexity requirements that user passwords must meet. For example - pattern for at least one capital letter, one small letter, one number and should be minimum 8 characters long.",
         "account_inactive_days": "Inactive Account",
         "account_inactive_days_desc": "Number of days of inactivity before user account is locked.",
-        "password_rule": "Password Rule",
-        "password_rule_desc": "Password rule to reset the password."
+        "password_rule": "Password Complexity Description",
+        "password_rule_desc": "User friendly description of password complexity requirements."
       },
       
       "administrative": {

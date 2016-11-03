@@ -151,30 +151,22 @@
     </sql>
   </changeSet>
   
-  <changeSet author="mdnasim" id="Update password complexity regular expression" dbms="mysql">
+  <changeSet author="mdnasim" id="Bug fix: Update password complexity regular expression" dbms="mysql">
     <sql>
       update
-        os_cfg_settings
+        os_cfg_settings s
+        inner join os_cfg_props p on p.identifier = s.property_id
+        inner join os_modules m on m.identifier = p.module_id
       set
-        value = '((?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,20})'
+        s.value = '((?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,20})'
       where
-        property_id = (
-          select
-            p.identifier
-          from
-            os_cfg_props p
-            inner join os_modules m
-          on
-            p.module_id = m.identifier
-          where
-            m.name = 'auth' and
-            p.name = 'password_pattern'
-        ) and
-        activity_status = 'Active';
+        m.name = 'auth' and
+        p.name = 'password_pattern' and
+        s.activity_status = 'Active';
     </sql>
   </changeSet>
   
-  <changeSet author="mdnasim" id="Reset password update date of all users to start from today">
+  <changeSet author="mdnasim" id="Reset password update date of all users">
     <sql>
       update
         catissue_password
@@ -185,19 +177,14 @@
           select
             max(p.identifier)
           from
-            (
-              select
-                identifier, user_id
-              from
-                catissue_password
-            ) p
+            catissue_password p
           group by
             p.user_id
         )
     </sql>
   </changeSet>
   
-  <changeSet author="mdnasim" id="Password rule">
+  <changeSet author="mdnasim" id="Setting to describe password complexity rules">
     <sql>
       call add_cfg_prop(
         'auth', 'password_rule',
