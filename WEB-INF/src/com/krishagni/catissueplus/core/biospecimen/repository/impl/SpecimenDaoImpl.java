@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Disjunction;
@@ -259,7 +260,11 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_STORAGE_SITE)
 			.setParameterList("specimenIds", specimenIds)
 			.list();
-		return rows.stream().collect(Collectors.toMap(row -> (Long)row[0], row -> (Long)row[1]));
+
+		// null value for site means virtual specimen
+		HashMap<Long, Long> result = new HashMap<>();
+		rows.forEach((row) -> result.put((Long)row[0], (Long)row[1]));
+		return result;
 	}
 
 	private void addIdsCond(Criteria query, List<Long> ids) {
