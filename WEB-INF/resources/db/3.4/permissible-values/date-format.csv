@@ -11,7 +11,6 @@ getNextPvId(),yyyy.MM.dd,date_format
 getNextPvId(),dd/MM/yy,date_format
 getNextPvId(),dd-MM-yy,date_format
 getNextPvId(),dd.MM.yy,date_format
-getNextPvId(),dd/MMM/yyyy,date_format
-getNextPvId(),dd-MMM-yyyy,date_format
+getNextPvId(),dd MMM yyyy,date_format
+getNextPvId(),d MMM yyyy,date_format
 getNextPvId(),dd.MMM.yyyy,date_format
-getNextPvId(),dd-MMM-yy,date_format
